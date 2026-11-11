@@ -661,7 +661,7 @@ function gradeFor(){
 }
 function endTerm(type){
   if(S.ended) return;
-  musicStop(); sfx(type === "survived" ? "win" : "death");
+  sfx(type === "survived" ? "win" : "death");
   S.ended = true; S.playing = false; S.endType = type;
   $("sidebars").classList.add("hidden");
   const months = Math.min(S.month, 48);
@@ -830,7 +830,11 @@ function setDiff(d){
     el.querySelectorAll(".dc").forEach(x => x.classList.toggle("on", DIFFLVL[x.dataset.diff] <= DIFFLVL[d]));
   });
 }
-document.addEventListener("pointerdown", () => { if(S && S.settings && (S.settings.sfx || S.settings.music)) ac(); }, true);
+document.addEventListener("pointerdown", () => {
+  if(!S || !S.settings) return;
+  if(S.settings.music && !musicNodes) musicStart();
+  if(S.settings.sfx || S.settings.music) ac();
+}, true);
 document.addEventListener("DOMContentLoaded", () => {
   S = freshState();
   $("sceneA").style.backgroundImage = "url(assets/scene-normal.webp)";
@@ -875,5 +879,6 @@ document.addEventListener("DOMContentLoaded", () => {
   $("copyBtn").onclick = async () => { try{ await navigator.clipboard.writeText(shareText()); toast("COPIED"); }catch(e){ toast("COPY FAILED"); } };
   window.addEventListener("resize", layoutPrices);
   renderHall(); render(); renderWire();
+  musicStart();
   requestAnimationFrame(loop);
 });
