@@ -223,19 +223,15 @@ function stepPrices(now, force){
   DISP.eggs = eggsLive();
   return true;
 }
-function flipEl(el){
-  if(!el || !S.playing) return;
-  el.classList.remove("flip"); void el.offsetWidth; el.classList.add("flip");
-}
 let lastGasTxt = "", lastEggsTxt = "";
 function renderScenePrices(){
   if(!S) return;
   if(stepPrices(performance.now(), false)){
     const gTxt = priceStr(DISP.gas);
-    if(gTxt !== lastGasTxt){ lastGasTxt = gTxt; flipEl($("sceneGas")); }
+    if(gTxt !== lastGasTxt){ lastGasTxt = gTxt; }
     $("sceneGasTxt").textContent = gTxt;
     const e = priceStr(DISP.eggs);
-    if(e !== lastEggsTxt){ lastEggsTxt = e; flipEl($("sceneEggs")); }
+    if(e !== lastEggsTxt){ lastEggsTxt = e; }
     $("sceneEggsVal").textContent = e;
     $("sceneEggsTag").textContent = e;
   }
@@ -593,6 +589,32 @@ function emergencySave(side){
   }
   sfx("save");
   return true;
+}
+
+function ac(){ if(!AC){ try{ AC = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} } if(AC && AC.state === "suspended") AC.resume(); return AC; }
+function tone(f0, f1, dur, type, vol, delay){
+  if(!S || !S.settings || !S.settings.sfx) return;
+  const c = ac(); if(!c) return;
+  const t = c.currentTime + (delay || 0);
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || "sine"; o.frequency.setValueAtTime(f0, t);
+  if(f1) o.frequency.exponentialRampToValueAtTime(Math.max(f1, 1), t + dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol || 0.1, t + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+}
+function sfx(name){
+  if(!S || !S.settings || !S.settings.sfx) return;
+  if(name === "click") tone(1150, 900, 0.05, "square", 0.09);
+  else if(name === "tick") tone(660, null, 0.03, "sine", 0.045);
+  else if(name === "card") tone(300, 520, 0.09, "triangle", 0.09);
+  else if(name === "alarm"){ tone(520, 520, 0.12, "square", 0.1); tone(392, 392, 0.15, "square", 0.1, 0.14); }
+  else if(name === "item"){ tone(990, null, 0.07, "sine", 0.09); tone(1318, null, 0.11, "sine", 0.09, 0.07); }
+  else if(name === "save"){ [392, 523.25, 659.25].forEach((f, i) => tone(f, null, 0.13, "triangle", 0.08, i * 0.08)); }
+  else if(name === "death") tone(320, 52, 0.75, "sawtooth", 0.13);
+  else if(name === "win"){ [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, null, 0.15, "triangle", 0.08, i * 0.1)); }
+  else if(name === "danger") tone(96, null, 0.1, "sine", 0.11);
 }
 
 /* ---------- music: real royalty-free tracks (Kevin MacLeod, CC BY 4.0) ---------- */

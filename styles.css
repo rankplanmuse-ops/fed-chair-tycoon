@@ -221,8 +221,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .share-title{font-size:11px;font-weight:900;letter-spacing:1.8px;color:var(--muted);margin-bottom:10px}
 .post-preview{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:12px 13px;font-size:13.5px;line-height:1.55;color:#DCE6F7}
 .share-row{display:flex;gap:9px;margin-top:11px}
-.btn-share{flex:1.4;background:var(--gold);color:#241A02;font-family:Baloo2,Nunito,sans-serif;font-weight:800;font-size:16px;padding:12px;border-radius:12px}
-.btn-share-x{flex:1;background:#1B2A47;color:#EAF0FB;font-weight:900;font-size:15px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.14)}
+.btn-share{flex:1;background:var(--gold);color:#241A02;font-family:Baloo2,Nunito,sans-serif;font-weight:800;font-size:15px;padding:12px 8px;border-radius:12px;white-space:nowrap}
+.btn-share-x{flex:0 0 50px;background:#1B2A47;color:#EAF0FB;font-weight:900;font-size:15px;padding:12px 0;border-radius:12px;border:1px solid rgba(255,255,255,.14)}
 .btn-newterm{flex:1.4;background:#1B2A47;color:#fff;font-family:Baloo2,Nunito,sans-serif;font-weight:800;font-size:15.5px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.16)}
 .btn-hall2{flex:1;background:transparent;color:#C9D5EC;font-weight:900;font-size:13.5px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.14)}
 
