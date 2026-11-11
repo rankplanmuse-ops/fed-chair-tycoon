@@ -415,6 +415,7 @@ function loop(ts){
 }
 
 function monthTick(){
+  sfx("tick");
   const D = DIFFS[S.diff];
   S.week = 1 + Math.floor(Math.random()*4);
   /* the economy's neutral rate wanders, so sitting still stops working */
@@ -545,27 +546,30 @@ function tone(f0, f1, dur, type, vol, delay){
 }
 function sfx(name){
   if(!S || !S.settings || !S.settings.sfx) return;
-  if(name === "click") tone(1150, 900, 0.05, "square", 0.045);
-  else if(name === "card") tone(300, 520, 0.09, "triangle", 0.055);
-  else if(name === "alarm"){ tone(520, 520, 0.12, "square", 0.06); tone(392, 392, 0.15, "square", 0.06, 0.14); }
+  if(name === "click") tone(1150, 900, 0.05, "square", 0.09);
+  else if(name === "tick") tone(660, null, 0.03, "sine", 0.045);
+  else if(name === "card") tone(300, 520, 0.09, "triangle", 0.09);
+  else if(name === "alarm"){ tone(520, 520, 0.12, "square", 0.1); tone(392, 392, 0.15, "square", 0.1, 0.14); }
   else if(name === "item"){ tone(990, null, 0.07, "sine", 0.09); tone(1318, null, 0.11, "sine", 0.09, 0.07); }
   else if(name === "save"){ [392, 523.25, 659.25].forEach((f, i) => tone(f, null, 0.13, "triangle", 0.08, i * 0.08)); }
-  else if(name === "death") tone(320, 52, 0.75, "sawtooth", 0.09);
+  else if(name === "death") tone(320, 52, 0.75, "sawtooth", 0.13);
   else if(name === "win"){ [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, null, 0.15, "triangle", 0.08, i * 0.1)); }
   else if(name === "danger") tone(96, null, 0.1, "sine", 0.11);
 }
 function musicStep(){
   if(!musicNodes || !AC) return;
   const t = AC.currentTime;
-  musicNodes.oscs.forEach((o, i) => o.frequency.setTargetAtTime(CHORDS[chordIx][i], t, 0.5));
+  musicNodes.oscs.forEach((o, i) => o.frequency.setTargetAtTime(CHORDS[chordIx][i % 4] * (i >= 4 ? 2 : 1), t, 0.5));
   chordIx = (chordIx + 1) % CHORDS.length;
 }
 function musicStart(){
   if(musicNodes || !S.settings.music) return;
   const c = ac(); if(!c) return;
-  const g = c.createGain(); g.gain.value = 0.04;
-  const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 640;
+  const g = c.createGain(); g.gain.value = 0.08;
+  const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 1500;
   const oscs = CHORDS[0].map(fr => { const o = c.createOscillator(); o.type = "triangle"; o.frequency.value = fr; o.connect(f); o.start(); return o; });
+  const oscs2 = CHORDS[0].map(fr => { const o = c.createOscillator(); o.type = "sine"; o.frequency.value = fr * 2; const og = c.createGain(); og.gain.value = 0.35; o.connect(og); og.connect(f); o.start(); return o; });
+  oscs.push(...oscs2);
   f.connect(g); g.connect(c.destination);
   musicNodes = {oscs: oscs, g: g}; chordIx = 1;
   musicTimer = setInterval(musicStep, 3600);

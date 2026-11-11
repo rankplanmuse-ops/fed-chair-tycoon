@@ -386,3 +386,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .rate-mid .rv{font-size:28px}
 .panel-bottom{gap:10px}
 .item-slot{min-height:60px;width:116px;padding:7px 8px}
+
+/* ===== Side bars: V-bottom tubes in grey metal casings ===== */
+.sb-track{width:27px;background:linear-gradient(90deg,#33383F,#6E7784 30%,#59616D 55%,#31363D);border:1px solid #1F2329;border-radius:8px 8px 3px 3px;clip-path:polygon(0 0,100% 0,100% calc(100% - 15px),50% 100%,0 calc(100% - 15px));box-shadow:0 10px 24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.35)}
+.sb-track::before,.sb-track::after{content:"";position:absolute;top:4px;width:5px;height:5px;border-radius:50%;background:#22262C;box-shadow:inset 0 1px 1px rgba(255,255,255,.4);z-index:3}
+.sb-track::before{left:4px}
+.sb-track::after{right:4px}
+.sb-fill{left:5px;right:5px;bottom:9px;border-radius:2px;z-index:1}
+.sb-fake{left:5px;right:5px;bottom:9px;z-index:2}
