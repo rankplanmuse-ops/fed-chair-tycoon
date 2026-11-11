@@ -27,6 +27,17 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 #sceneB{opacity:0}
 .scrim-top{position:absolute;top:0;left:0;right:0;height:110px;background:linear-gradient(rgba(4,8,16,.55),transparent);pointer-events:none;z-index:3}
 
+
+/* ===== live prices painted on the street signs ===== */
+.scene-price{position:absolute;z-index:5;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.sp-gas{font-family:Baloo;justify-content:flex-start}font-weight:800;border-radius:6px;text-shadow:2px 2px 0 rgba(0,0,0,.85),-1px -1px 0 rgba(0,0,0,.85),1px -1px 0 rgba(0,0,0,.85),-1px 1px 0 rgba(0,0,0,.85);white-space:nowrap}
+.sp-gas.frozen{filter:saturate(.35) brightness(.92)}
+.sp-gas span{display:block;text-align:center;white-space:nowrap}
+.sp-eggs{background:#FFFDF4;border-radius:3px;flex-direction:column;gap:0;transform:rotate(-3deg);box-shadow:0 1px 3px rgba(0,0,0,.3);line-height:1}
+.sp-eggs .se-k{font-weight:900;color:#1B2432;letter-spacing:.4px}
+.sp-eggs .se-v{font-weight:900;color:#1B2432}
+.sp-tag{background:#FFD83D;border-radius:3px;font-weight:900;color:#1B2432;transform:rotate(3deg);box-shadow:0 1px 3px rgba(0,0,0,.3);white-space:nowrap}
+
 /* ===== HUD ===== */
 .hud{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:8px;padding:14px 14px 0}
 .hud-debt{flex:1;min-width:0}

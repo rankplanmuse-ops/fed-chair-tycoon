@@ -44,6 +44,7 @@ function freshState(){
     controlsLeft:0, lieLeft:0, shockInf:0, lastEvent:-9, warDone:false,
     neutral:4.6, infVel:0, uVel:0,
     gdp:2.1, gdpVel:0, distort:0, bustCd:0, peakDistort:0,
+    frozenGas:null,
     warnedR:0, warnedL:0, peakInf:2.4, devSum:0, closest:0.5,
     diff:"chair", settings:{sfx:true, music:true, ticker:true, haptics:false},
     scene:"normal", endType:null
@@ -120,6 +121,7 @@ function setScene(name){
   showEl.style.backgroundImage = "url(assets/scene-" + name + ".webp)";
   showEl.style.opacity = 1; hideEl.style.opacity = 0;
   sceneFlip = !sceneFlip;
+  layoutPrices();
 }
 function sceneFor(){
   if(S.war) return "war";
@@ -127,6 +129,66 @@ function sceneFor(){
   if(S.inf >= 5.5 || S.needle >= 0.72) return "inflation";
   if(S.u >= 7 || S.needle <= 0.28) return "recession";
   return "normal";
+}
+
+/* ---------- live prices on the street signs ---------- */
+/* rects are 0-1000 normalised boxes around the prices baked into each plate;
+   layout maps them through the same cover/50% 92% maths the CSS background uses */
+const SCENE_PRICES = {
+  normal:    {iw:1120, ih:2240, gas:{r:[700,556,1014,624], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[97,797,190,846], tag:[189,807,241,835]}},
+  inflation: {iw:1120, ih:2240, gas:{r:[716,570,1014,632], bg:"#8E2418", fg:"#FF4A36"}, eggs:{r:[23,743,83,777], tag:null}},
+  recession: {iw:1152, ih:2048, gas:{r:[756,500,1014,572], bg:"#8E3B2A", fg:"#D8C58F"}, eggs:null},
+  disaster:  {iw:1152, ih:2048, gas:{r:[804,512,972,582], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[76,719,122,755], tag:null}},
+  war:       {iw:1120, ih:2240, gas:{r:[700,544,1014,608], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[97,787,193,827], tag:[191,795,233,821]}}
+};
+function priceStr(v){
+  if(v >= 100) return String(Math.round(v));
+  if(v >= 10) return v.toFixed(1);
+  return v.toFixed(2);
+}
+function placePrice(el, cfg, rect, scale, offX, offY){
+  const w = (rect[2]-rect[0]) / 1000 * cfg.iw * scale;
+  const h = (rect[3]-rect[1]) / 1000 * cfg.ih * scale;
+  el.style.left = (offX + rect[0] / 1000 * cfg.iw * scale) + "px";
+  el.style.top = (offY + rect[1] / 1000 * cfg.ih * scale) + "px";
+  el.style.width = w + "px"; el.style.height = h + "px";
+  return h;
+}
+function layoutPrices(){
+  if(!S) return;
+  const stage = $("stage"); if(!stage) return;
+  const W = stage.clientWidth, H = stage.clientHeight;
+  const cfg = SCENE_PRICES[S.scene] || SCENE_PRICES.normal;
+  const scale = Math.max(W / cfg.iw, H / cfg.ih);
+  const offX = (W - cfg.iw * scale) * 0.5, offY = (H - cfg.ih * scale) * 0.92;
+  const gasEl = $("sceneGas"), gasTxt = $("sceneGasTxt");
+  const gh = placePrice(gasEl, cfg, cfg.gas.r, scale, offX, offY);
+  gasEl.style.background = cfg.gas.bg; gasEl.style.color = cfg.gas.fg;
+  const gtxt = gasTxt.textContent;
+  const visW = Math.max(44, W - parseFloat(gasEl.style.left) - 54);
+  gasTxt.style.width = visW + "px";
+  gasTxt.style.fontSize = Math.min(gh * 0.62, visW / Math.max(gtxt.length,1) * 1.62) + "px";
+  gasEl.classList.toggle("frozen", !!S.gasFrozen);
+  const eggsEl = $("sceneEggs"), tagEl = $("sceneEggsTag");
+  if(cfg.eggs){
+    eggsEl.style.display = "flex";
+    const eh = placePrice(eggsEl, cfg, cfg.eggs.r, scale, offX, offY);
+    eggsEl.querySelector(".se-k").style.fontSize = (eh * 0.30) + "px";
+    eggsEl.querySelector(".se-v").style.fontSize = (eh * 0.44) + "px";
+    if(cfg.eggs.tag){
+      tagEl.style.display = "flex";
+      const th = placePrice(tagEl, cfg, cfg.eggs.tag, scale, offX, offY);
+      tagEl.style.fontSize = (th * 0.55) + "px";
+    } else tagEl.style.display = "none";
+  } else { eggsEl.style.display = "none"; tagEl.style.display = "none"; }
+}
+function renderScenePrices(){
+  if(!S) return;
+  $("sceneGasTxt").textContent = priceStr(S.gasFrozen && S.frozenGas ? S.frozenGas : gasNow());
+  const e = priceStr(eggsNow());
+  $("sceneEggsVal").textContent = e;
+  $("sceneEggsTag").textContent = e;
+  layoutPrices();
 }
 
 /* ---------- HUD ---------- */
@@ -162,6 +224,7 @@ function render(){
   $("cpiBar").classList.toggle("hot", S.inf >= 4.5 && S.inf < 7.5);
   $("cpiBar").classList.toggle("danger", S.inf >= 7.5);
   setScene(sceneFor());
+  renderScenePrices();
 }
 
 let toastTimer = null;
@@ -249,7 +312,7 @@ const EVENTS = [
 
 function ladderCard(stage){
   if(stage === 1){
-    S.gasFrozen = true; S.freezeLeft = 4; S.controlsLeft = 4;
+    S.gasFrozen = true; S.freezeLeft = 4; S.controlsLeft = 4; S.frozenGas = gasNow();
     showCard("SERFDOM LADDER &middot; STAGE 7", "tag-story", "PRICE CONTROLS",
       "The Hill has had enough of your needle. An official price board goes up: gas is frozen by law. The sign stops. The queues start. Underneath, the pressure keeps building.",
       "FREEZE EVERYTHING", null, "The ladder only advances while you are losing. It never moves back.");
@@ -348,7 +411,7 @@ function monthTick(){
   else S.priceLevel *= 1 + S.inf/1200; /* pressure builds under the freeze */
   S.gasMult += (1 - S.gasMult) * 0.25;
   if(S.war){ S.warLeft--; if(S.warLeft <= 0){ S.war = false; pushWire("Main Street Post", "Ceasefire signed. The convoys are going home.", {}); } }
-  if(S.freezeLeft > 0){ S.freezeLeft--; if(S.freezeLeft === 0){ S.gasFrozen = false; toast("PRICE CONTROLS LIFTED"); pushWire("Main Street Post", "Controls lifted. The gas sign catches up all at once.", {brk:true}); } }
+  if(S.freezeLeft > 0){ S.freezeLeft--; if(S.freezeLeft === 0){ S.gasFrozen = false; S.frozenGas = null; toast("PRICE CONTROLS LIFTED"); pushWire("Main Street Post", "Controls lifted. The gas sign catches up all at once.", {brk:true}); } }
   if(S.controlsLeft > 0) S.controlsLeft--;
   if(S.lieLeft > 0) S.lieLeft--;
   let n = 0.5 + (S.inf - 2) * 0.062 - (S.u - 4.4) * 0.060 + (S.gdp - 2) * 0.012;
@@ -570,6 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   $("shareXBtn").onclick = () => window.open("https://twitter.com/intent/tweet?text=" + encodeURIComponent(shareText()), "_blank");
   $("copyBtn").onclick = async () => { try{ await navigator.clipboard.writeText(shareText()); toast("COPIED"); }catch(e){ toast("COPY FAILED"); } };
+  window.addEventListener("resize", layoutPrices);
   renderHall(); render(); renderWire();
   requestAnimationFrame(loop);
 });
