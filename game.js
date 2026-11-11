@@ -41,6 +41,7 @@ function freshState(){
     priceLevel:1, needle:0.5, item:ITEMS[0], itemIn:0,
     history:[], wire:[], unread:0, ladder:0, dangerRun:0,
     war:false, warLeft:0, gasMult:1, gasFrozen:false, freezeLeft:0,
+    jekyllDone:false,
     controlsLeft:0, lieLeft:0, shockInf:0, lastEvent:-9, warDone:false,
     neutral:4.6, infVel:0, uVel:0,
     gdp:2.1, gdpVel:0, distort:0, bustCd:0, peakDistort:0,
@@ -81,6 +82,11 @@ function ambientHeadline(){
   if(S.priceLevel > 1.05) pool.push(["Main Street Post", "Coffee is up again. The cafe blames everything."]);
   if(S.inf >= 3.5) pool.push(["Main Street Post", "Used cars cost more than new ones did. Somehow."]);
   if(S.priceLevel > 1.12) pool.push(["Main Street Post", "Bread costs what cake used to. The street noticed."]);
+  pool.push(["Hill Insider", "On the record: this bank was drafted at a duck hunt in Georgia in 1910. A duck hunt."]);
+  pool.push(["Hill Insider", "Seven men, first names only, one private train from Hoboken. That is the founding paperwork."]);
+  pool.push(["Main Street Post", "The Jekyll Island clubhouse still keeps the room. It is called the Federal Reserve Room."]);
+  pool.push(["Savers\u2019 Gazette", "A founder confessed in 1935: 'I was as secretive as any conspirator. We left our last names behind.'"]);
+  pool.push(["Savers\u2019 Gazette", "Opinion: the Creature sends its regards.", {oped:true}]);
   pool.push(["Hill Insider", "Senators ask, again, who exactly is in charge of prices."]);
   pool.push(["Hill Insider", "The Hill blames the chair. The chair blames the data."]);
   pool.push(["Main Street Post", "The street is calm. The street is watching."]);
@@ -301,6 +307,14 @@ const EVENTS = [
     showCard("SCENARIO", "tag-event", "BOND VIGILANTES",
       "The bond market is selling first and asking later. Yields spike. " + (S.rate < 5.5 ? "They think your rate is a joke." : "Your high rate earns a grudging nod."),
       "BACK TO BEGGING MARKETS");
+  }},
+  {id:"jekyll", when:() => S.month >= 10 && !S.jekyllDone, run(){
+    S.jekyllDone = true;
+    S.inf += (2 - S.inf) * 0.35; S.u += (4.4 - S.u) * 0.3; S.debt *= 1.004;
+    pushWire("Hill Insider", "The chair has vanished for a weekend. Georgia, apparently. Duck season.", {brk:true});
+    showCard("SCENARIO", "tag-event", "JEKYLL ISLAND WEEKEND",
+      "An unmarked invitation: a hunting club in Georgia, first names only, no staff, no guest book. The men who built this bank in 1910 would approve. The street calms a little. The club, as always, sends the bill to the debt ticker.",
+      "BACK TO THE DUCK HUNT", null, "Documented: November 1910, the Aldrich Plan was drafted here in nine days. It became the Federal Reserve Act of 1913.");
   }},
   {id:"snarl", when:() => S.month >= 3, run(){
     S.shockInf += 1.0;
