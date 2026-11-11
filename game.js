@@ -7,9 +7,9 @@ const tFmt = n => "+$" + (n/1e12).toFixed(2) + "T";
 const DEBT0 = 38412905221114;
 
 const DIFFS = {
-  intern: {drift:0.8, noise:0.55, warn:0.82, warn2:0.92},
-  chair:  {drift:1.0, noise:1.0,  warn:0.78, warn2:0.90},
-  legend: {drift:1.22, noise:1.4, warn:0.74, warn2:0.86}
+  intern: {drift:0.8, noise:0.55, warn:0.80, warn2:0.90},
+  chair:  {drift:1.0, noise:1.0,  warn:0.74, warn2:0.86},
+  legend: {drift:1.22, noise:1.4, warn:0.70, warn2:0.82}
 };
 
 const ITEMS = [
@@ -42,6 +42,8 @@ function freshState(){
     history:[], wire:[], unread:0, ladder:0, dangerRun:0,
     war:false, warLeft:0, gasMult:1, gasFrozen:false, freezeLeft:0,
     controlsLeft:0, lieLeft:0, shockInf:0, lastEvent:-9, warDone:false,
+    neutral:4.6, infVel:0, uVel:0,
+    gdp:2.1, gdpVel:0, distort:0, bustCd:0, peakDistort:0,
     warnedR:0, warnedL:0, peakInf:2.4, devSum:0, closest:0.5,
     diff:"chair", settings:{sfx:true, music:true, ticker:true, haptics:false},
     scene:"normal", endType:null
@@ -70,6 +72,9 @@ function ambientHeadline(){
   if(S.u >= 5.5) pool.push(["Union Daily", "Another plant cuts shifts. The canteen is quiet."]);
   if(S.rate >= 7) pool.push(["Bond Watch", "Borrowers are screaming. Bondholders are not."]);
   if(S.rate <= 3) pool.push(["Bond Watch", "Cheap money is back. So are the wild ideas."]);
+  if(S.distort >= 35) pool.push(["Main Street Post", "Cranes everywhere. Half the new projects have no buyers yet."]);
+  if(S.distort >= 55) pool.push(["Bond Watch", "Condos, apps, a monorail to nowhere: all pencilled at cheap rates."]);
+  if(S.distort >= 70) pool.push(["Savers\u2019 Gazette", "These projects only work if money stays free forever. It will not."]);
   if(g >= 6) pool.push(["Main Street Post", "Gas at $" + g.toFixed(2) + ". Drivers are doing the maths out loud."]);
   if(S.inf >= 2.5) pool.push(["Main Street Post", "Rents renewed this month. Nobody renewed cheap."]);
   if(S.priceLevel > 1.05) pool.push(["Main Street Post", "Coffee is up again. The cafe blames everything."]);
@@ -142,6 +147,20 @@ function render(){
   $("stInf").textContent = S.playing || S.ended ? S.inf.toFixed(1) + "%" : "-";
   $("stRate").textContent = S.playing || S.ended ? S.rate.toFixed(2) + "%" : "-";
   $("stDebt").textContent = S.playing || S.ended ? tFmt(S.debt - DEBT0) : "-";
+  /* GDP left, CPI right: the two ends, always in your face */
+  const gdpPct = clamp((S.gdp + 5) / 11 * 100, 0, 100);
+  $("gdpFill").style.height = gdpPct + "%";
+  const fakePct = S.gdp > 0 ? clamp(S.distort * 0.35, 0, gdpPct) : 0;
+  $("gdpFake").style.height = fakePct + "%";
+  $("gdpVal").textContent = (S.gdp >= 0 ? "+" : "") + S.gdp.toFixed(1) + "%";
+  $("gdpBar").classList.toggle("low", S.gdp < 1.2 && S.gdp >= -0.5);
+  $("gdpBar").classList.toggle("bad", S.gdp < -0.5);
+  $("gdpBar").classList.toggle("danger", S.gdp <= -2.5);
+  const cpiPct = clamp((dispInf() + 1) / 13 * 100, 0, 100);
+  $("cpiFill").style.height = cpiPct + "%";
+  $("cpiVal").textContent = dispInf().toFixed(1) + "%";
+  $("cpiBar").classList.toggle("hot", S.inf >= 4.5 && S.inf < 7.5);
+  $("cpiBar").classList.toggle("danger", S.inf >= 7.5);
   setScene(sceneFor());
 }
 
@@ -247,6 +266,13 @@ function ladderCard(stage){
   }
 }
 
+/* ---------- the Austrian bust ---------- */
+function bustCard(){
+  showCard("MALINVESTMENT &middot; THE BUST", "tag-story", "THE RECKONING ARRIVES",
+    "The cranes stop. Projects that only made sense at cheap rates fold in a row, and the jobs go with them. You did not build this bust with your hike. You built it in the boom, one cheap month at a time.",
+    "FACE THE RECKONING", null, "The pile is smaller now. What is left is real.");
+}
+
 /* ---------- engine ---------- */
 const MONTH_MS = 4200;
 let acc = 0, lastTs = 0;
@@ -268,13 +294,56 @@ function loop(ts){
 function monthTick(){
   const D = DIFFS[S.diff];
   S.week = 1 + Math.floor(Math.random()*4);
-  const target = 2.2 + (4.6 - S.rate) * 1.15 + (S.war ? 0.9 : 0);
-  S.inf += (target - S.inf) * 0.40 * D.drift + rnd(-0.26, 0.26) * D.noise + S.shockInf;
+  /* the economy's neutral rate wanders, so sitting still stops working */
+  S.neutral = clamp(S.neutral + rnd(-0.22, 0.22) + (4.7 - S.neutral) * 0.015, 3.4, 6.2);
+  /* high rate: prices settle, jobs bleed. low rate: jobs heal, prices run. no safe corner. */
+  const target = 2.2 + (S.neutral - S.rate) * 1.5 + (S.war ? 0.9 : 0);
+  S.infVel += (target - S.inf) * 0.17 * D.drift;
+  S.infVel *= 0.70;
+  S.inf += S.infVel + rnd(-0.42, 0.42) * D.noise + S.shockInf;
   S.shockInf *= 0.45;
   S.inf = clamp(S.inf, -1.5, 45);
-  const uT = 4.3 + (S.rate - 4.7) * 0.75;
-  S.u += (uT - S.u) * 0.3 * D.drift + rnd(-0.09, 0.09) * D.noise;
+  const uT = 4.3 + (S.rate - (S.neutral + 0.1)) * 1.05;
+  S.uVel += (uT - S.u) * 0.15 * D.drift;
+  S.uVel *= 0.70;
+  S.u += S.uVel + rnd(-0.13, 0.13) * D.noise;
   S.u = clamp(S.u, 1.8, 14);
+  /* Austrian layer: rates below the real (neutral) rate stockpile malinvestment.
+     It flatters GDP while it builds. Hikes, or a pile too big to hide, expose it. */
+  if(S.bustCd > 0) S.bustCd--;
+  const gap = S.neutral - S.rate;
+  if(gap > 0.25) S.distort += gap * 2.6 * D.drift;
+  else S.distort -= 2.6 + (-gap) * 1.4;
+  S.distort = clamp(S.distort, 0, 100);
+  S.peakDistort = Math.max(S.peakDistort, S.distort);
+  const gdpT = 2.3 - (S.rate - (S.neutral + 0.2)) * 0.85 + (gap > 0.25 ? S.distort * 0.016 : 0) + (S.war ? -0.8 : 0);
+  S.gdpVel += (gdpT - S.gdp) * 0.18 * D.drift;
+  S.gdpVel *= 0.68;
+  S.gdp += S.gdpVel + rnd(-0.35, 0.35) * D.noise;
+  S.gdp = clamp(S.gdp, -8, 9);
+  /* the bust: a tall pile plus a real hike, or a pile that cannot be hidden */
+  if(S.bustCd === 0 && ((S.distort >= 55 && S.rate >= S.neutral + 0.5) || S.distort >= 97)){
+    const size = S.distort;
+    S.u = clamp(S.u + 1.1 + size * 0.028, 1.8, 14);
+    S.gdp = clamp(S.gdp - (2.2 + size * 0.03), -8, 9);
+    S.gdpVel = -0.8;
+    S.shockInf -= 0.4;
+    S.distort = size * 0.32;
+    S.bustCd = 9;
+    pushWire("Main Street Post", "The bust: cranes stopped, projects folding, layoffs in a row. The boom was borrowed.", {brk:true, warn:true});
+    bustCard();
+  }
+  /* jolts: the street moves first and explains itself later */
+  if(Math.random() < 0.13){
+    if(Math.random() < 0.5){
+      const j = rnd(0.5, 1.0) * (Math.random() < 0.6 ? 1 : -1);
+      S.inf += j;
+      if(j >= 0.75) pushWire("Main Street Post", "Prices jumped this month. Nobody knows why. Everybody knows who to blame.", {brk:true});
+    } else {
+      S.u += rnd(0.4, 0.8);
+      pushWire("Union Daily", "Layoffs spiked this month. The canteen is quiet again.", {});
+    }
+  }
   if(!S.gasFrozen) S.priceLevel *= 1 + S.inf/1200;
   else S.priceLevel *= 1 + S.inf/1200; /* pressure builds under the freeze */
   S.gasMult += (1 - S.gasMult) * 0.25;
@@ -282,8 +351,8 @@ function monthTick(){
   if(S.freezeLeft > 0){ S.freezeLeft--; if(S.freezeLeft === 0){ S.gasFrozen = false; toast("PRICE CONTROLS LIFTED"); pushWire("Main Street Post", "Controls lifted. The gas sign catches up all at once.", {brk:true}); } }
   if(S.controlsLeft > 0) S.controlsLeft--;
   if(S.lieLeft > 0) S.lieLeft--;
-  let n = 0.5 + (S.inf - 2) * 0.055 - (S.u - 4.4) * 0.052;
-  if(S.inf < 1) n -= (1 - S.inf) * 0.05;
+  let n = 0.5 + (S.inf - 2) * 0.062 - (S.u - 4.4) * 0.060 + (S.gdp - 2) * 0.012;
+  if(S.inf < 1) n -= (1 - S.inf) * 0.028;
   S.needle = clamp(n, 0, 1);
   S.history.push(S.needle);
   S.peakInf = Math.max(S.peakInf, S.inf);
@@ -299,7 +368,7 @@ function monthTick(){
   if(S.needle >= 0.72){ S.dangerRun++; } else S.dangerRun = 0;
   if(S.dangerRun === 2 && S.ladder < 3){ S.ladder++; ladderCard(S.ladder); }
   /* events */
-  if(!S.paused && S.month - S.lastEvent >= 4 && Math.random() < 0.34){
+  if(!S.paused && S.month - S.lastEvent >= 3 && Math.random() < 0.36){
     const evs = EVENTS.filter(e => e.when());
     if(evs.length){ const ev = evs[Math.floor(Math.random()*evs.length)]; S.lastEvent = S.month; ev.run(); }
   }
@@ -325,6 +394,7 @@ function gradeFor(){
 function endTerm(type){
   if(S.ended) return;
   S.ended = true; S.playing = false; S.endType = type;
+  $("sidebars").classList.add("hidden");
   const months = Math.min(S.month, 48);
   saveHall(months);
   if(type === "inflation"){
@@ -435,6 +505,7 @@ function startTerm(){
   S.playing = true; S.screen = "game";
   showOnly(null);
   $("dock").classList.remove("hidden");
+  $("sidebars").classList.remove("hidden");
   $("prices").classList.toggle("hidden", !S.settings.ticker);
   closeSheets(); hideCard();
   pushWire("Hill Insider", "A new chair takes the lever. The street holds its breath.", {});
