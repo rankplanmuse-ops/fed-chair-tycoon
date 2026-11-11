@@ -500,6 +500,8 @@ function monthTick(){
   S.gdpVel += (gdpT - S.gdp) * 0.26 * D.drift;
   S.gdpVel *= 0.64;
   S.gdp += S.gdpVel + rnd(-0.18, 0.18) * D.noise;
+  /* above 3% growth runs hot: left alone, it cools off slowly on its own */
+  if(S.gdp > 3) S.gdp -= (S.gdp - 3) * 0.15;
   S.gdp = clamp(S.gdp, -32, 9);
   /* the bust: a tall pile plus a real hike, or a pile that cannot be hidden */
   if(S.bustCd === 0 && ((S.distort >= 45 && S.rate >= S.neutral + 0.5) || S.distort >= 90)){
@@ -724,7 +726,7 @@ function shareText(){
 function saveHall(months){
   try{
     const arr = JSON.parse(localStorage.getItem("fedchair-hall") || "[]");
-    arr.push({name:"KELVIN WALSH", status:endLabel().toUpperCase(), months:months, debt:Math.round((S.debt - DEBT0)/1e11)/10, you:true, ts:Date.now()});
+    arr.push({name:"KELVIN WHALES", status:endLabel().toUpperCase(), months:months, debt:Math.round((S.debt - DEBT0)/1e11)/10, you:true, ts:Date.now()});
     localStorage.setItem("fedchair-hall", JSON.stringify(arr.slice(-12)));
   }catch(e){}
   renderHall();

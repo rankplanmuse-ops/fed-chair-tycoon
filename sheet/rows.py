@@ -46,7 +46,7 @@ add("HUD","LIVES 5 (live value)","Price chip row under the HUD","Emergency meeti
 add("HUD","BTC RESERVE $0 (live value)","Price chip row, hidden until the reserve is signed","Current value of the Bitcoin reserve","Dark chip with orange border and Bitcoin icon")
 
 # ---------- Control panel ----------
-add("Control panel","KELVIN WALSH","Panel, top left, beside the chair's portrait","Your name as chair (parody of Kevin Warsh)","Bold white caps")
+add("Control panel","KELVIN WHALES","Panel, top left, beside the chair's portrait","Your name as chair (parody of Kevin Warsh)","Bold white caps")
 add("Control panel","INFLATION","Panel, top right, label","Labels the big inflation readout; a red up arrow or green down arrow appears next to it showing the trend","Small gold caps")
 add("Control panel","2.4% (live value)","Panel, top right","Current inflation; glides continuously as you move the lever","Large Baloo 2 white number")
 add("Control panel","RECESSION","Needle bar, left end","The cold end of the gauge","Small blue caps inside the gradient bar")
@@ -235,7 +235,7 @@ add("Term Report","NEW TERM / HALL OF CHAIRS","Report screen, bottom buttons","S
 # ---------- Hall of Chairs ----------
 add("Hall of Chairs","Hall of Chairs","Leaderboard sheet, title","Sheet title","Sheet header title")
 add("Hall of Chairs","ALL TIME / THIS WEEK / FRIENDS","Leaderboard sheet, segment tabs","Filter tabs (ALL TIME is the populated view)","Segmented control")
-add("Hall of Chairs","KELVIN WALSH","Leaderboard rows (and your pinned identity)","Your saved terms are filed under this name","Bold name; your rows are highlighted")
+add("Hall of Chairs","KELVIN WHALES","Leaderboard rows (and your pinned identity)","Your saved terms are filed under this name","Bold name; your rows are highlighted")
 add("Hall of Chairs","Printy McPrintface \u00b7 SURVIVED \u00b7 48 mo","Leaderboard, seeded rival row","Fake rival chair","Medal 1 (gold), name, green status, months")
 add("Hall of Chairs","Steady Eddie \u00b7 SURVIVED \u00b7 48 mo","Leaderboard, seeded rival row","Fake rival chair","Medal 2 (silver), name, green status, months")
 add("Hall of Chairs","Hawkish Hank \u00b7 SURVIVED \u00b7 47 mo","Leaderboard, seeded rival row","Fake rival chair","Medal 3 (bronze), name, green status, months")
