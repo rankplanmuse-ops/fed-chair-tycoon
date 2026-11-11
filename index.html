@@ -73,6 +73,15 @@
       </div>
     </section>
 
+    <section class="screen hidden" id="screenLoad">
+      <div class="load-wrap">
+        <div class="coin load-coin">$</div>
+        <div class="load-line" id="loadLine">PRINTING MONEY</div>
+        <div class="load-bar"><div class="load-fill" id="loadFill"></div></div>
+        <div class="load-skip">TAP TO SKIP</div>
+      </div>
+    </section>
+
     <section class="screen hidden" id="screenBrief">
       <div class="card brief-card">
         <div class="brief-art"><div class="ribbon">THE BRIEFING</div></div>
@@ -91,23 +100,37 @@
     </section>
 
     <div class="dock hidden" id="dock">
-      <div class="dock-top">
-        <div class="inf-box"><div class="k">INFLATION</div><div class="v" id="infVal">2.4%</div></div>
-        <div class="gauge-box">
-          <div class="gbar"><div class="gmark" id="gmark"></div></div>
-          <div class="glabels"><span style="color:#7FB2FF">RECESSION</span><span style="color:#FF8A75">INFLATION</span></div>
+      <div class="panel-top">
+        <img class="chair-pic" src="assets/chair-portrait.webp" alt="The Chair">
+        <div class="chair-id">
+          <div class="chair-name">THE CHAIR</div>
+          <div class="chair-sub">FEDERAL RESERVE</div>
+        </div>
+        <div class="panel-inf">
+          <div class="pk">INFLATION</div>
+          <div class="pv" id="infVal">2.4%</div>
         </div>
       </div>
-      <div class="rate-row">
-        <button class="rate-btn" id="rateDown" aria-label="Cut rate">&#9660;</button>
-        <div class="rate-mid"><div class="k">INTEREST RATE</div><div class="v" id="rateVal">5.00%</div></div>
-        <button class="rate-btn" id="rateUp" aria-label="Raise rate">&#9650;</button>
+      <div class="gbar">
+        <div class="gmark" id="gmark"></div>
+        <span class="plabel pl">RECESSION</span><span class="plabel pr">INFLATION</span>
       </div>
-      <button class="item-slot" id="itemSlot">
-        <span class="item-k">ITEM</span>
-        <span class="item-name" id="itemName">EMPTY CRATE</span>
-        <span class="item-tap" id="itemTap"></span>
-      </button>
+      <div class="gauge-cap">THE NEEDLE</div>
+      <div class="panel-bottom">
+        <div class="tri-stack">
+          <button class="rate-btn tri" id="rateUp" aria-label="Raise the rate">&#9650;</button>
+          <button class="rate-btn tri" id="rateDown" aria-label="Cut the rate">&#9660;</button>
+        </div>
+        <div class="rate-mid">
+          <div class="rv" id="rateVal">5.00%</div>
+          <div class="rk">INTEREST RATE</div>
+        </div>
+        <button class="item-slot" id="itemSlot">
+          <span class="ik">ITEM</span>
+          <span class="iname" id="itemName">EMPTY</span>
+          <span class="itap" id="itemTap"></span>
+        </button>
+      </div>
     </div>
 
     <div class="overlay hidden" id="overlay"><div class="card" id="overlayCard"></div></div>

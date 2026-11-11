@@ -41,7 +41,7 @@ function freshState(){
     priceLevel:1, needle:0.5, item:ITEMS[0], itemIn:0,
     history:[], wire:[], unread:0, ladder:0, dangerRun:0,
     war:false, warLeft:0, gasMult:1, gasFrozen:false, freezeLeft:0,
-    jekyllDone:false,
+    jekyllDone:false, scandalDone:false, bailoutDone:false, corpDone:false,
     controlsLeft:0, lieLeft:0, shockInf:0, lastEvent:-9, warDone:false,
     neutral:4.6, infVel:0, uVel:0,
     gdp:2.1, gdpVel:0, distort:0, bustCd:0, peakDistort:0,
@@ -87,6 +87,14 @@ function ambientHeadline(){
   pool.push(["Main Street Post", "The Jekyll Island clubhouse still keeps the room. It is called the Federal Reserve Room."]);
   pool.push(["Savers\u2019 Gazette", "A founder confessed in 1935: 'I was as secretive as any conspirator. We left our last names behind.'"]);
   pool.push(["Savers\u2019 Gazette", "Opinion: the Creature sends its regards.", {oped:true}]);
+  pool.push(["Hill Insider", "A later audit counted $16 trillion in secret emergency loans. The street got a comment period."]);
+  pool.push(["Bond Watch", "The bank buys corporate bonds now. Even the junk ones. Especially the junk ones."]);
+  pool.push(["Savers\u2019 Gazette", "The dollar has lost over 96% of its value since 1913. The bank calls this 'about 2% a year'."]);
+  pool.push(["Main Street Post", "Member banks own the regional banks and draw a fixed 6% dividend. Ownership has privileges."]);
+  pool.push(["Union Daily", "Zombie firms walk again: kept alive by cheap credit, eating the living."]);
+  pool.push(["Hill Insider", "Reserve requirements have been zero since March 2020. The vault is a vibe now."]);
+  pool.push(["Main Street Post", "A chair once took rates to 20% on purpose. Old-timers still whisper about it."]);
+  pool.push(["Savers\u2019 Gazette", "Opinion: price-fixing is illegal, unless the price is money.", {oped:true}]);
   pool.push(["Hill Insider", "Senators ask, again, who exactly is in charge of prices."]);
   pool.push(["Hill Insider", "The Hill blames the chair. The chair blames the data."]);
   pool.push(["Main Street Post", "The street is calm. The street is watching."]);
@@ -316,6 +324,30 @@ const EVENTS = [
       "An unmarked invitation: a hunting club in Georgia, first names only, no staff, no guest book. The men who built this bank in 1910 would approve. The street calms a little. The club, as always, sends the bill to the debt ticker.",
       "BACK TO THE DUCK HUNT", null, "Documented: November 1910, the Aldrich Plan was drafted here in nine days. It became the Federal Reserve Act of 1913.");
   }},
+  {id:"bailout", when:() => S.month >= 12 && !S.bailoutDone, run(){
+    S.bailoutDone = true;
+    S.inf += (2 - S.inf) * 0.30; S.u += (4.4 - S.u) * 0.35; S.distort = clamp(S.distort + 15, 0, 100); S.debt *= 1.01;
+    pushWire("Bond Watch", "Emergency lending, off the books, again. Details in a few years, maybe.", {brk:true});
+    showCard("SCENARIO", "tag-event", "THE SECRET BAILOUT",
+      "Overnight, the window opens for the big banks: emergency loans, below-market rates, no press release. The street calms down fast. The pile of too-big-to-fail grows quietly in the back, and the bill goes to the ticker, as always.",
+      "BACK TO THE BACK ROOM", null, "Documented: a 2011 audit counted $16.1 trillion in emergency loans from 2007-2010, much of it secret at the time.");
+  }},
+  {id:"scandal", when:() => S.month >= 14 && !S.scandalDone, run(){
+    S.scandalDone = true;
+    S.inf += 0.6; S.u += 0.2;
+    pushWire("Hill Insider", "Two regional presidents resign over their portfolios. The ethics forms are being redesigned.", {brk:true});
+    showCard("SCANDAL", "tag-warn", "THE TRADING SCANDAL",
+      "Reporters have the brokerage statements: senior officials traded millions in stocks and property funds while setting the very policy that moved those prices. Two regional presidents resign by Friday. Your credibility takes the hit: prices believe you a little less.",
+      "BACK TO THE ETHICS FORMS", null, "Documented: the 2020-21 trading scandal forced resignations and a full rewrite of the ethics rules, after the fact.");
+  }},
+  {id:"corp", when:() => S.month >= 16 && !S.corpDone, run(){
+    S.corpDone = true;
+    S.gdpVel += 0.5; S.distort = clamp(S.distort + 12, 0, 100); S.inf += 0.3;
+    pushWire("Bond Watch", "The bank is shopping for corporate bonds. The junk shelf too.", {brk:true});
+    showCard("SCENARIO", "tag-event", "CORPORATE BOND SHOPPING",
+      "A first in the bank's history: the printer is now buying company debt directly, blue chips and junk alike. Markets cheer, GDP perks up, and a few more projects that should not exist now never have to die.",
+      "BACK TO THE SHOPPING", null, "Documented: in 2020 the bank bought corporate bonds for the first time, high-yield 'junk' included.");
+  }},
   {id:"snarl", when:() => S.month >= 3, run(){
     S.shockInf += 1.0;
     showCard("SCENARIO", "tag-event", "SUPPLY CHAINS SNARL AGAIN",
@@ -346,7 +378,7 @@ function ladderCard(stage){
 /* ---------- the Austrian bust ---------- */
 function bustCard(){
   showCard("MALINVESTMENT &middot; THE BUST", "tag-story", "THE RECKONING ARRIVES",
-    "The cranes stop. Projects that only made sense at cheap rates fold in a row, and the jobs go with them. You did not build this bust with your hike. You built it in the boom, one cheap month at a time.",
+    "The cranes stop. Projects that only made sense at cheap rates fold in a row, and the jobs go with them. GDP just corrected down 30%: the fake growth was never real. You did not build this bust with your hike. You built it in the boom, one cheap month at a time.",
     "FACE THE RECKONING", null, "The pile is smaller now. What is left is real.");
 }
 
@@ -389,7 +421,7 @@ function monthTick(){
      It flatters GDP while it builds. Hikes, or a pile too big to hide, expose it. */
   if(S.bustCd > 0) S.bustCd--;
   const gap = S.neutral - S.rate;
-  if(gap > 0.25) S.distort += gap * 2.6 * D.drift;
+  if(gap > 0.25) S.distort += gap * 3.2 * D.drift;
   else S.distort -= 2.6 + (-gap) * 1.4;
   S.distort = clamp(S.distort, 0, 100);
   S.peakDistort = Math.max(S.peakDistort, S.distort);
@@ -397,13 +429,13 @@ function monthTick(){
   S.gdpVel += (gdpT - S.gdp) * 0.18 * D.drift;
   S.gdpVel *= 0.68;
   S.gdp += S.gdpVel + rnd(-0.35, 0.35) * D.noise;
-  S.gdp = clamp(S.gdp, -8, 9);
+  S.gdp = clamp(S.gdp, -32, 9);
   /* the bust: a tall pile plus a real hike, or a pile that cannot be hidden */
-  if(S.bustCd === 0 && ((S.distort >= 55 && S.rate >= S.neutral + 0.5) || S.distort >= 97)){
+  if(S.bustCd === 0 && ((S.distort >= 45 && S.rate >= S.neutral + 0.5) || S.distort >= 90)){
     const size = S.distort;
     S.u = clamp(S.u + 1.1 + size * 0.028, 1.8, 14);
-    S.gdp = clamp(S.gdp - (2.2 + size * 0.03), -8, 9);
-    S.gdpVel = -0.8;
+    S.gdp = -30; /* the correction: GDP down 30%, the 1930s print */
+    S.gdpVel = -1.0;
     S.shockInf -= 0.4;
     S.distort = size * 0.32;
     S.bustCd = 9;
@@ -428,7 +460,7 @@ function monthTick(){
   if(S.freezeLeft > 0){ S.freezeLeft--; if(S.freezeLeft === 0){ S.gasFrozen = false; S.frozenGas = null; toast("PRICE CONTROLS LIFTED"); pushWire("Main Street Post", "Controls lifted. The gas sign catches up all at once.", {brk:true}); } }
   if(S.controlsLeft > 0) S.controlsLeft--;
   if(S.lieLeft > 0) S.lieLeft--;
-  let n = 0.5 + (S.inf - 2) * 0.062 - (S.u - 4.4) * 0.060 + (S.gdp - 2) * 0.012;
+  let n = 0.5 + (S.inf - 2) * 0.062 - (S.u - 4.4) * 0.060 + clamp((S.gdp - 2) * 0.012, -0.14, 0.08);
   if(S.inf < 1) n -= (1 - S.inf) * 0.028;
   S.needle = clamp(n, 0, 1);
   S.history.push(S.needle);
@@ -490,6 +522,7 @@ function endTerm(type){
     $("screenDeath").innerHTML =
       '<div class="death-wrap"><span class="ending-ribbon ribbon-blue">RECESSION ENDING &middot; MONTH ' + months + '</span>' +
       '<div class="memo"><div class="fromto">THE WHITE HOUSE<br>MEMORANDUM<br><br>From: The President<br>Re: Termination of appointment</div>' +
+      '<div class="foot" style="margin-top:10px">Echoes of 1929-1933, when this bank raised rates into the crash and let the money supply collapse. An ex-chair admitted it decades later: "We did it. We\u2019re very sorry."</div>' +
       '<p class="body">Markets have fallen for three straight months and the dole queues are on the evening news. This is not personal. It is entirely personal. Clear your desk by Friday. The plant by the elevator is not yours to take.</p>' +
       '<div class="fine2">Severance: a book deal, a speaking tour, and a podcast.</div>' +
       '<button class="btn-gold" onclick="showReport()">SEE TERM REPORT</button>' +
@@ -560,9 +593,27 @@ function renderHall(){
 }
 
 /* ---------- flow ---------- */
+const LOAD_LINES = ["PRINTING MONEY","WARMING UP THE PRINTER","CALLING IT TRANSITORY","BLAMING SUPPLY CHAINS","RAISING THE DEBT CEILING","SCHEDULING A PRESS CONFERENCE","MOVING THE GOALPOSTS","BURYING THE REPORT","SYNCING EXCUSES","DUCK HUNTING IN GEORGIA","CHECKING IN UNDER FIRST NAMES","COUNTING WHEELBARROWS"];
+let loadTimer = null;
+function startLoad(){
+  showOnly("screenLoad");
+  let i = 0;
+  const step = () => {
+    if(i >= LOAD_LINES.length){ finishLoad(); return; }
+    $("loadLine").textContent = LOAD_LINES[i];
+    $("loadFill").style.width = ((i + 1) / LOAD_LINES.length * 100) + "%";
+    i++;
+    loadTimer = setTimeout(step, 560);
+  };
+  step();
+}
+function finishLoad(){
+  if(loadTimer){ clearTimeout(loadTimer); loadTimer = null; }
+  if(!$("screenLoad").classList.contains("hidden")) showOnly("screenBrief");
+}
 function showOnly(id){
-  ["screenTitle","screenBrief","screenDeath","screenReport"].forEach(s => $(s).classList.toggle("hidden", s !== id));
-  if(!id) ["screenTitle","screenBrief","screenDeath","screenReport"].forEach(s => $(s).classList.add("hidden"));
+  ["screenTitle","screenLoad","screenBrief","screenDeath","screenReport"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  if(!id) ["screenTitle","screenLoad","screenBrief","screenDeath","screenReport"].forEach(s => $(s).classList.add("hidden"));
 }
 function openSheet(id){
   ["screenWire","screenSettings","screenHall"].forEach(s => $(s).classList.toggle("hidden", s !== id));
@@ -613,7 +664,8 @@ document.addEventListener("DOMContentLoaded", () => {
   S = freshState();
   $("sceneA").style.backgroundImage = "url(assets/scene-normal.webp)";
   bindSeg($("diffSeg"), setDiff); bindSeg($("diffSeg2"), setDiff);
-  $("startBtn").onclick = () => { showOnly("screenBrief"); };
+  $("startBtn").onclick = () => { startLoad(); };
+  $("screenLoad").onclick = () => { finishLoad(); };
   $("howBtn").onclick = () => { showOnly("screenBrief"); };
   $("takeLeverBtn").onclick = () => startTerm();
   $("hallBtn").onclick = () => { renderHall(); openSheet("screenHall"); };

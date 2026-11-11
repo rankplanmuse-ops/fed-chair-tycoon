@@ -280,3 +280,38 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .hud-month{order:3;margin-top:2px}
   .prices{top:96px}
 }
+
+/* ===== EpiPen-style simple control panel (2026-11-11) ===== */
+.dock{padding:12px 14px calc(12px + env(safe-area-inset-bottom))}
+.panel-top{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+.chair-pic{width:56px;height:56px;border-radius:14px;border:2px solid rgba(255,255,255,.28);object-fit:cover;flex:none;background:#0E7490}
+.chair-name{font:800 19px "Baloo 2";line-height:1.05}
+.chair-sub{font:800 10px Nunito;letter-spacing:.16em;color:var(--mut)}
+.panel-inf{margin-left:auto;text-align:right}
+.panel-inf .pk{font:800 11px Nunito;letter-spacing:.2em;color:var(--gold)}
+.panel-inf .pv{font:800 31px "Baloo 2";line-height:1.05;font-variant-numeric:tabular-nums}
+.gbar{position:relative}
+.plabel{position:absolute;top:50%;transform:translateY(-50%);font:800 10px Nunito;letter-spacing:.1em;color:rgba(255,255,255,.92);text-shadow:0 1px 3px rgba(0,0,0,.45);z-index:1;pointer-events:none}
+.plabel.pl{left:10px}.plabel.pr{right:10px}
+.gauge-cap{text-align:center;font:800 11px Nunito;letter-spacing:.38em;color:var(--mut);margin:6px 0 11px}
+.panel-bottom{display:flex;align-items:center;gap:14px}
+.tri-stack{display:flex;flex-direction:column;gap:6px;flex:none}
+.tri{width:58px;height:35px;border-radius:10px;background:#DCE6F7;color:#0B1120;font-size:16px;border:0;cursor:pointer;box-shadow:0 3px 0 #93A9CF;font-family:Nunito}
+.tri:active{transform:translateY(2px);box-shadow:0 1px 0 #93A9CF}
+.rate-mid .rv{font:800 34px "Baloo 2";line-height:1;font-variant-numeric:tabular-nums}
+.rate-mid .rk{font:800 11px Nunito;letter-spacing:.18em;color:var(--mut);margin-top:3px}
+.item-slot{margin-left:auto;width:124px;min-height:76px;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center}
+.item-slot .ik{font:800 10px Nunito;letter-spacing:.2em;color:var(--mut)}
+.toast{bottom:238px}
+@media (max-width:760px){ .toast{bottom:238px} }
+.item-slot .iname{font:800 13px "Baloo 2";line-height:1.15}
+.item-slot .itap{font:700 10px Nunito;color:var(--mut)}
+
+/* ===== Intro sequence ===== */
+.load-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px;cursor:pointer}
+.load-coin{animation:coinpulse 1.1s ease-in-out infinite}
+@keyframes coinpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.load-line{font:700 17px "Courier Prime",monospace;letter-spacing:.05em;color:var(--gold);min-height:24px;text-align:center}
+.load-bar{width:210px;height:4px;background:#1E293B;border-radius:2px;overflow:hidden}
+.load-fill{height:100%;background:var(--gold);width:0%;transition:width .45s ease}
+.load-skip{font:800 10px Nunito;letter-spacing:.26em;color:var(--mut)}
