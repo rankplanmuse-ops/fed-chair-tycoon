@@ -326,18 +326,22 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .itrend{letter-spacing:.04em;font-size:10px}
 /* ===== People walking the street ===== */
 .walkers{position:absolute;inset:0;bottom:var(--dockh,268px);overflow:hidden;pointer-events:none;z-index:3}
-.walker{position:absolute;bottom:5.2%;left:0;height:12.5%;will-change:transform;animation:cross linear infinite}
+.walker{position:absolute;bottom:12px;left:0;height:12.5%;will-change:transform;animation:cross linear infinite}
 .walker img{height:100%;width:auto;display:block;animation:bob .46s ease-in-out infinite alternate}
 .walker.rev img{transform:scaleX(-1)}
 .wk1{animation-duration:52s;animation-delay:-14s;height:12.5%}
-.wk2{animation-duration:34s;animation-delay:-26s;height:11%;bottom:4.4%}
+.wk2{animation-duration:34s;animation-delay:-26s;height:11%;bottom:7px}
 .wk3{animation-duration:44s;animation-delay:-38s;height:12%}
-.wk4{animation-duration:78s;animation-delay:-8s;height:11.5%;bottom:6%}
+.wk4{animation-duration:78s;animation-delay:-8s;height:11.5%;bottom:20px}
 .wk5{animation-duration:58s;animation-delay:-44s;height:12.5%}
-.wk6{animation-duration:66s;animation-delay:-30s;height:13%;bottom:4.8%}
+.wk6{animation-duration:66s;animation-delay:-30s;height:13%;bottom:9px}
 @keyframes cross{from{transform:translateX(-30vw)}to{transform:translateX(105vw)}}
 @keyframes bob{from{margin-top:0}to{margin-top:-3px}}
 @media (prefers-reduced-motion: reduce){ .walker{animation:none} .walker img{animation:none} }
 
 .chair-name{font-size:17px;letter-spacing:.01em}
 .panel-top{margin-bottom:12px}
+
+/* ===== The street: one flat tile, stuck to the bottom ===== */
+.road{position:absolute;left:0;right:0;bottom:var(--dockh,268px);height:60px;background:linear-gradient(#5A616B,#454B54);border-top:9px solid #B9BDC4;z-index:2}
+.road-line{position:absolute;left:0;right:0;top:60%;height:4px;background:repeating-linear-gradient(90deg,#F5C542 0 26px,transparent 26px 54px);opacity:.75}
