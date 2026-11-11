@@ -171,10 +171,13 @@ function placePrice(el, cfg, rect, scale, offX, offY){
 function layoutPrices(){
   if(!S) return;
   const stage = $("stage"); if(!stage) return;
-  const W = stage.clientWidth, H = stage.clientHeight;
+  const dockEl = $("dock");
+  const dockH = (dockEl && !dockEl.classList.contains("hidden")) ? dockEl.offsetHeight + 24 : 0;
+  document.documentElement.style.setProperty("--dockh", dockH + "px");
+  const W = stage.clientWidth, H = stage.clientHeight - dockH;
   const cfg = SCENE_PRICES[S.scene] || SCENE_PRICES.normal;
   const scale = Math.max(W / cfg.iw, H / cfg.ih);
-  const offX = (W - cfg.iw * scale) * 0.5, offY = (H - cfg.ih * scale) * 0.92;
+  const offX = (W - cfg.iw * scale) * 0.5, offY = (H - cfg.ih * scale) * 1.0;
   const gasEl = $("sceneGas"), gasTxt = $("sceneGasTxt");
   const gh = placePrice(gasEl, cfg, cfg.gas.r, scale, offX, offY);
   gasEl.style.background = cfg.gas.bg; gasEl.style.color = cfg.gas.fg;
@@ -211,6 +214,12 @@ function render(){
   $("debtVal").textContent = money(S.debt);
   $("monthVal").textContent = "MONTH " + Math.min(S.month,48) + "/48";
   $("infVal").textContent = dispInf().toFixed(1) + "%";
+  const gapNow = S.neutral - S.rate, tr = $("infTrend");
+  if(tr){
+    if(gapNow > 0.3){ tr.textContent = "\u25B2 HEATING UP"; tr.style.color = "#FF8A75"; }
+    else if(gapNow < -0.3){ tr.textContent = "\u25BC COOLING"; tr.style.color = "#7FD08A"; }
+    else { tr.textContent = "\u25CF STEADY"; tr.style.color = "#94A3B8"; }
+  }
   $("rateVal").textContent = S.rate.toFixed(2) + "%";
   const pct = (S.needle*100).toFixed(1) + "%";
   $("gmark").style.left = pct; $("gmark2").style.left = pct;
@@ -404,18 +413,18 @@ function monthTick(){
   const D = DIFFS[S.diff];
   S.week = 1 + Math.floor(Math.random()*4);
   /* the economy's neutral rate wanders, so sitting still stops working */
-  S.neutral = clamp(S.neutral + rnd(-0.22, 0.22) + (4.7 - S.neutral) * 0.015, 3.4, 6.2);
+  S.neutral = clamp(S.neutral + rnd(-0.10, 0.10) + (4.7 - S.neutral) * 0.01, 3.4, 6.2);
   /* high rate: prices settle, jobs bleed. low rate: jobs heal, prices run. no safe corner. */
   const target = 2.2 + (S.neutral - S.rate) * 1.5 + (S.war ? 0.9 : 0);
-  S.infVel += (target - S.inf) * 0.17 * D.drift;
-  S.infVel *= 0.70;
-  S.inf += S.infVel + rnd(-0.42, 0.42) * D.noise + S.shockInf;
+  S.infVel += (target - S.inf) * 0.34 * D.drift;
+  S.infVel *= 0.62;
+  S.inf += S.infVel + rnd(-0.15, 0.15) * D.noise + S.shockInf;
   S.shockInf *= 0.45;
   S.inf = clamp(S.inf, -1.5, 45);
   const uT = 4.3 + (S.rate - (S.neutral + 0.1)) * 1.05;
-  S.uVel += (uT - S.u) * 0.15 * D.drift;
-  S.uVel *= 0.70;
-  S.u += S.uVel + rnd(-0.13, 0.13) * D.noise;
+  S.uVel += (uT - S.u) * 0.24 * D.drift;
+  S.uVel *= 0.66;
+  S.u += S.uVel + rnd(-0.07, 0.07) * D.noise;
   S.u = clamp(S.u, 1.8, 14);
   /* Austrian layer: rates below the real (neutral) rate stockpile malinvestment.
      It flatters GDP while it builds. Hikes, or a pile too big to hide, expose it. */
@@ -426,9 +435,9 @@ function monthTick(){
   S.distort = clamp(S.distort, 0, 100);
   S.peakDistort = Math.max(S.peakDistort, S.distort);
   const gdpT = 2.3 - (S.rate - (S.neutral + 0.2)) * 0.85 + (gap > 0.25 ? S.distort * 0.016 : 0) + (S.war ? -0.8 : 0);
-  S.gdpVel += (gdpT - S.gdp) * 0.18 * D.drift;
-  S.gdpVel *= 0.68;
-  S.gdp += S.gdpVel + rnd(-0.35, 0.35) * D.noise;
+  S.gdpVel += (gdpT - S.gdp) * 0.26 * D.drift;
+  S.gdpVel *= 0.64;
+  S.gdp += S.gdpVel + rnd(-0.18, 0.18) * D.noise;
   S.gdp = clamp(S.gdp, -32, 9);
   /* the bust: a tall pile plus a real hike, or a pile that cannot be hidden */
   if(S.bustCd === 0 && ((S.distort >= 45 && S.rate >= S.neutral + 0.5) || S.distort >= 90)){
@@ -443,13 +452,13 @@ function monthTick(){
     bustCard();
   }
   /* jolts: the street moves first and explains itself later */
-  if(Math.random() < 0.13){
+  if(Math.random() < 0.07){
     if(Math.random() < 0.5){
-      const j = rnd(0.5, 1.0) * (Math.random() < 0.6 ? 1 : -1);
+      const j = rnd(0.35, 0.6) * (Math.random() < 0.6 ? 1 : -1);
       S.inf += j;
       if(j >= 0.75) pushWire("Main Street Post", "Prices jumped this month. Nobody knows why. Everybody knows who to blame.", {brk:true});
     } else {
-      S.u += rnd(0.4, 0.8);
+      S.u += rnd(0.3, 0.55);
       pushWire("Union Daily", "Layoffs spiked this month. The canteen is quiet again.", {});
     }
   }

@@ -23,7 +23,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .app{display:grid;grid-template-columns:320px minmax(0,540px) 320px;gap:16px;justify-content:center;height:100dvh;padding:16px;max-width:1300px;margin:0 auto}
 .rail{display:flex;flex-direction:column;gap:14px;min-height:0;overflow:hidden}
 .stage{position:relative;border-radius:26px;overflow:hidden;background:#0A1220;box-shadow:0 24px 60px rgba(0,0,0,.55);min-height:0}
-.scene{position:absolute;inset:0;background-size:cover;background-position:50% 92%;transition:opacity .9s ease}
+.scene{position:absolute;inset:0;bottom:var(--dockh,268px);background-size:cover;background-position:50% 100%;transition:opacity .9s ease}
 #sceneB{opacity:0}
 .scrim-top{position:absolute;top:0;left:0;right:0;height:110px;background:linear-gradient(rgba(4,8,16,.55),transparent);pointer-events:none;z-index:3}
 
@@ -125,7 +125,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .item-tap{font-size:11px;font-weight:800;color:var(--muted)}
 
 /* overlay cards */
-.overlay{position:absolute;inset:0;z-index:40;background:rgba(3,6,12,.45);display:flex;align-items:flex-end;padding:14px}
+.overlay{position:absolute;inset:0;z-index:40;background:rgba(3,6,12,.45);display:flex;align-items:flex-start;padding:14px}
 .overlay .card{width:100%;padding:22px}
 .tagchip{display:inline-block;font-size:10.5px;font-weight:900;letter-spacing:1.8px;padding:5px 11px;border-radius:6px;margin-bottom:12px}
 .tag-warn{background:#3A2A10;color:#FFC86B;border:1px solid #8A6A24}
@@ -302,8 +302,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .rate-mid .rk{font:800 11px Nunito;letter-spacing:.18em;color:var(--mut);margin-top:3px}
 .item-slot{margin-left:auto;width:124px;min-height:76px;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center}
 .item-slot .ik{font:800 10px Nunito;letter-spacing:.2em;color:var(--mut)}
-.toast{bottom:238px}
-@media (max-width:760px){ .toast{bottom:238px} }
+.toast{bottom:calc(var(--dockh,268px) + 14px)}
+@media (max-width:760px){ .toast{bottom:calc(var(--dockh,268px) + 14px)} }
 .item-slot .iname{font:800 13px "Baloo 2";line-height:1.15}
 .item-slot .itap{font:700 10px Nunito;color:var(--mut)}
 
@@ -322,3 +322,19 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @keyframes coindrop{0%{transform:translateY(-46px) scale(.6);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
 .load-line.linein{animation:linein .3s ease both}
 @keyframes linein{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+
+.itrend{letter-spacing:.04em;font-size:10px}
+/* ===== People walking the street ===== */
+.walkers{position:absolute;inset:0;bottom:var(--dockh,268px);overflow:hidden;pointer-events:none;z-index:3}
+.walker{position:absolute;bottom:5.2%;left:0;height:12.5%;will-change:transform;animation:cross linear infinite}
+.walker img{height:100%;width:auto;display:block;animation:bob .46s ease-in-out infinite alternate}
+.walker.rev img{transform:scaleX(-1)}
+.wk1{animation-duration:52s;animation-delay:-14s;height:12.5%}
+.wk2{animation-duration:34s;animation-delay:-26s;height:11%;bottom:4.4%}
+.wk3{animation-duration:44s;animation-delay:-38s;height:12%}
+.wk4{animation-duration:78s;animation-delay:-8s;height:11.5%;bottom:6%}
+.wk5{animation-duration:58s;animation-delay:-44s;height:12.5%}
+.wk6{animation-duration:66s;animation-delay:-30s;height:13%;bottom:4.8%}
+@keyframes cross{from{transform:translateX(-30vw)}to{transform:translateX(105vw)}}
+@keyframes bob{from{margin-top:0}to{margin-top:-3px}}
+@media (prefers-reduced-motion: reduce){ .walker{animation:none} .walker img{animation:none} }

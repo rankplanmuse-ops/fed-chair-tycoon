@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fed Chair Tycoon</title>
 <link rel="icon" href="assets/icon.png">
-<link rel="stylesheet" href="styles.css?v=3">
+<link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 <div class="app">
@@ -22,6 +22,14 @@
     <div class="scene" id="sceneA"></div>
     <div class="scene" id="sceneB"></div>
     <div class="scrim-top"></div>
+    <div class="walkers" id="walkers">
+      <span class="walker wk1"><img src="assets/walker-1.webp" alt=""></span>
+      <span class="walker wk2"><img src="assets/walker-5.webp" alt=""></span>
+      <span class="walker wk3"><img src="assets/walker-3.webp" alt=""></span>
+      <span class="walker wk4 rev"><img src="assets/walker-4.webp" alt=""></span>
+      <span class="walker wk5"><img src="assets/walker-6.webp" alt=""></span>
+      <span class="walker wk6 rev"><img src="assets/walker-2.webp" alt=""></span>
+    </div>
     <div class="scene-price sp-gas" id="sceneGas"><span id="sceneGasTxt">3.49</span></div>
     <div class="scene-price sp-eggs" id="sceneEggs"><span class="se-k">EGGS</span><span class="se-v" id="sceneEggsVal">2.99</span></div>
     <div class="scene-price sp-tag" id="sceneEggsTag">2.99</div>
@@ -107,7 +115,7 @@
           <div class="chair-sub">FEDERAL RESERVE</div>
         </div>
         <div class="panel-inf">
-          <div class="pk">INFLATION</div>
+          <div class="pk">INFLATION <span class="itrend" id="infTrend">&#9679; STEADY</span></div>
           <div class="pv" id="infVal">2.4%</div>
         </div>
       </div>
@@ -246,6 +254,6 @@
   </aside>
 
 </div>
-<script src="game.js?v=3"></script>
+<script src="game.js?v=4"></script>
 </body>
 </html>
