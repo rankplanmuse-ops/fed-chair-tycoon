@@ -217,9 +217,9 @@ function render(){
   $("infVal").textContent = dispInf().toFixed(1) + "%";
   const gapNow = S.neutral - S.rate, tr = $("infTrend");
   if(tr){
-    if(gapNow > 0.3){ tr.textContent = "\u25B2 HEATING UP"; tr.style.color = "#FF8A75"; }
-    else if(gapNow < -0.3){ tr.textContent = "\u25BC COOLING"; tr.style.color = "#7FD08A"; }
-    else { tr.textContent = "\u25CF STEADY"; tr.style.color = "#94A3B8"; }
+    if(gapNow > 0.3){ tr.textContent = "\u25B2"; tr.style.color = "#FF8A75"; }
+    else if(gapNow < -0.3){ tr.textContent = "\u25BC"; tr.style.color = "#7FD08A"; }
+    else { tr.textContent = ""; }
   }
   $("rateVal").textContent = S.rate.toFixed(2) + "%";
   const pct = (S.needle*100).toFixed(1) + "%";
@@ -227,8 +227,8 @@ function render(){
   $("gasVal").textContent = "$" + gasNow().toFixed(2);
   $("eggsVal").textContent = "$" + eggsNow().toFixed(2);
   $("jobsVal").textContent = S.u.toFixed(1) + "%";
-  $("itemName").textContent = S.item ? S.item.name : "EMPTY CRATE";
-  $("itemTap").textContent = S.item ? "TAP TO USE" : (S.itemIn > 0 ? "NEW ITEM IN " + S.itemIn + " MO" : "");
+  $("itemName").textContent = S.item ? S.item.name : "EMPTY";
+  $("itemTap").textContent = S.item ? "TAP TO USE" : "";
   $("stMonth").textContent = S.playing || S.ended ? Math.min(S.month,48) + " / 48" : "-";
   $("stInf").textContent = S.playing || S.ended ? S.inf.toFixed(1) + "%" : "-";
   $("stRate").textContent = S.playing || S.ended ? S.rate.toFixed(2) + "%" : "-";
@@ -575,7 +575,7 @@ function shareText(){
 function saveHall(months){
   try{
     const arr = JSON.parse(localStorage.getItem("fedchair-hall") || "[]");
-    arr.push({name:"YOU", status:endLabel().toUpperCase(), months:months, debt:Math.round((S.debt - DEBT0)/1e11)/10, you:true, ts:Date.now()});
+    arr.push({name:"KELVIN WALSH", status:endLabel().toUpperCase(), months:months, debt:Math.round((S.debt - DEBT0)/1e11)/10, you:true, ts:Date.now()});
     localStorage.setItem("fedchair-hall", JSON.stringify(arr.slice(-12)));
   }catch(e){}
   renderHall();

@@ -338,3 +338,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @keyframes cross{from{transform:translateX(-30vw)}to{transform:translateX(105vw)}}
 @keyframes bob{from{margin-top:0}to{margin-top:-3px}}
 @media (prefers-reduced-motion: reduce){ .walker{animation:none} .walker img{animation:none} }
+
+.chair-name{font-size:17px;letter-spacing:.01em}
+.panel-top{margin-bottom:12px}
