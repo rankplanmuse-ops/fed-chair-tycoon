@@ -211,9 +211,20 @@ function layoutPrices(){
     } else tagEl.style.display = "none";
   } else { eggsEl.style.display = "none"; tagEl.style.display = "none"; }
 }
+let lastGasTxt = "", lastFlip = 0;
 function renderScenePrices(){
   if(!S) return;
-  $("sceneGasTxt").textContent = priceStr(S.gasFrozen && S.frozenGas ? S.frozenGas : gasLive());
+  const gTxt = priceStr(S.gasFrozen && S.frozenGas ? S.frozenGas : gasLive());
+  if(gTxt !== lastGasTxt){
+    lastGasTxt = gTxt;
+    const now = performance.now();
+    if(now - lastFlip > 500 && S.playing){
+      lastFlip = now;
+      const sg = $("sceneGas");
+      sg.classList.remove("flip"); void sg.offsetWidth; sg.classList.add("flip");
+    }
+  }
+  $("sceneGasTxt").textContent = gTxt;
   const e = priceStr(eggsLive());
   $("sceneEggsVal").textContent = e;
   $("sceneEggsTag").textContent = e;
