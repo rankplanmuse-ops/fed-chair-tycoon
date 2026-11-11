@@ -595,12 +595,16 @@ function renderHall(){
 /* ---------- flow ---------- */
 const LOAD_LINES = ["PRINTING MONEY","WARMING UP THE PRINTER","CALLING IT TRANSITORY","BLAMING SUPPLY CHAINS","RAISING THE DEBT CEILING","SCHEDULING A PRESS CONFERENCE","MOVING THE GOALPOSTS","BURYING THE REPORT","SYNCING EXCUSES","DUCK HUNTING IN GEORGIA","CHECKING IN UNDER FIRST NAMES","COUNTING WHEELBARROWS"];
 let loadTimer = null;
-function startLoad(){
+let loadMode = "brief";
+function startLoad(mode){
+  loadMode = mode || "brief";
   showOnly("screenLoad");
   let i = 0;
   const step = () => {
     if(i >= LOAD_LINES.length){ finishLoad(); return; }
-    $("loadLine").textContent = LOAD_LINES[i];
+    const el = $("loadLine");
+    el.textContent = LOAD_LINES[i];
+    el.classList.remove("linein"); void el.offsetWidth; el.classList.add("linein");
     $("loadFill").style.width = ((i + 1) / LOAD_LINES.length * 100) + "%";
     i++;
     loadTimer = setTimeout(step, 560);
@@ -609,7 +613,8 @@ function startLoad(){
 }
 function finishLoad(){
   if(loadTimer){ clearTimeout(loadTimer); loadTimer = null; }
-  if(!$("screenLoad").classList.contains("hidden")) showOnly("screenBrief");
+  if($("screenLoad").classList.contains("hidden")) return;
+  if(loadMode === "term"){ startTerm(); } else { showOnly("screenBrief"); }
 }
 function showOnly(id){
   ["screenTitle","screenLoad","screenBrief","screenDeath","screenReport"].forEach(s => $(s).classList.toggle("hidden", s !== id));
@@ -640,7 +645,7 @@ function startTerm(){
   pushWire("Main Street Post", "Eggs at $2.99, gas at $3.49. Remember this calm.", {});
   render(); renderWire();
 }
-function newTerm(){ startTerm(); }
+function newTerm(){ startLoad("term"); }
 function resign(){
   if(!S.playing){ toast("NO TERM IN PROGRESS"); return; }
   closeSheets();
@@ -670,7 +675,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("takeLeverBtn").onclick = () => startTerm();
   $("hallBtn").onclick = () => { renderHall(); openSheet("screenHall"); };
   $("hallBtn2").onclick = () => { renderHall(); openSheet("screenHall"); };
-  $("newTermBtn").onclick = () => startTerm();
+  $("newTermBtn").onclick = () => startLoad("term");
   $("wireBtn").onclick = () => openSheet("screenWire");
   $("settingsBtn").onclick = () => openSheet("screenSettings");
   document.querySelectorAll("[data-close]").forEach(b => b.onclick = closeSheets);
