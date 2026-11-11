@@ -229,6 +229,7 @@ function render(){
   $("jobsVal").textContent = S.u.toFixed(1) + "%";
   $("itemName").textContent = S.item ? S.item.name : "EMPTY";
   $("itemTap").textContent = S.item ? "TAP TO USE" : "";
+  $("itemSlot").classList.toggle("has-item", !!S.item);
   $("stMonth").textContent = S.playing || S.ended ? Math.min(S.month,48) + " / 48" : "-";
   $("stInf").textContent = S.playing || S.ended ? S.inf.toFixed(1) + "%" : "-";
   $("stRate").textContent = S.playing || S.ended ? S.rate.toFixed(2) + "%" : "-";
