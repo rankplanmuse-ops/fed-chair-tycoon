@@ -405,3 +405,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .btc-svg{width:80%;height:80%}
 .title-coin .coin-inner{animation:idleflip 8s ease-in-out infinite}
 @keyframes idleflip{0%,30%{transform:rotateY(0deg)}44%,72%{transform:rotateY(180deg)}86%,100%{transform:rotateY(360deg)}}
+
+/* Title screen lets taps fall through to the HUD (gear, wire) except on its own menu */
+#screenTitle{pointer-events:none}
+#screenTitle .title-menu{pointer-events:auto}
+
+.sb-zone{position:absolute;left:3px;right:3px;background:rgba(57,201,107,.30);border-top:1.5px solid rgba(57,201,107,.95);border-bottom:1.5px solid rgba(57,201,107,.95);z-index:0}

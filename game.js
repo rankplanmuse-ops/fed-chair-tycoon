@@ -39,7 +39,7 @@ function freshState(){
     screen:"title", playing:false, paused:false, ended:false,
     month:1, week:1, inf:2.4, rate:5.0, u:4.2, debt:DEBT0,
     priceLevel:1, needle:0.5, item:ITEMS[0], itemIn:0,
-    history:[], wire:[], unread:0, ladder:0, dangerRun:0, lives:5, meetings:0, scarHot:0, scarCold:0, sbr:false, sbrDone:false, btcPrice:97400, btcHeld:0,
+    history:[], wire:[], unread:0, ladder:0, dangerRun:0, lives:5, meetings:0, scarHot:0, scarCold:0, streetDrift:1, sbr:false, sbrDone:false, btcPrice:97400, btcHeld:0,
     war:false, warLeft:0, gasMult:1, gasFrozen:false, freezeLeft:0,
     jekyllDone:false, scandalDone:false, bailoutDone:false, corpDone:false,
     controlsLeft:0, lieLeft:0, shockInf:0, lastEvent:-9, warDone:false,
@@ -64,6 +64,15 @@ function pushWire(src, head, opts){
 function streetHeat(){ return clamp(1 + (S.inf - 2) * 1.0, 0.5, 30); }
 function gasNow(){ return 3.49 * S.priceLevel * S.gasMult * streetHeat(); }
 function eggsNow(){ return 2.99 * S.priceLevel * streetHeat(); }
+let wobT = 0;
+function gasLive(){
+  const w = 1 + 0.011 * Math.sin(wobT / 700) + 0.006 * Math.sin(wobT / 263 + 1.7);
+  return gasNow() * (S.streetDrift || 1) * w;
+}
+function eggsLive(){
+  const w = 1 + 0.008 * Math.sin(wobT / 810 + 0.6) + 0.005 * Math.sin(wobT / 311 + 3.1);
+  return eggsNow() * (S.streetDrift || 1) * w;
+}
 
 function ambientHeadline(){
   const g = gasNow(), e = eggsNow();
@@ -204,8 +213,8 @@ function layoutPrices(){
 }
 function renderScenePrices(){
   if(!S) return;
-  $("sceneGasTxt").textContent = priceStr(S.gasFrozen && S.frozenGas ? S.frozenGas : gasNow());
-  const e = priceStr(eggsNow());
+  $("sceneGasTxt").textContent = priceStr(S.gasFrozen && S.frozenGas ? S.frozenGas : gasLive());
+  const e = priceStr(eggsLive());
   $("sceneEggsVal").textContent = e;
   $("sceneEggsTag").textContent = e;
   layoutPrices();
@@ -216,7 +225,13 @@ function dispInf(){ return S.lieLeft > 0 ? S.inf * 0.6 : S.inf; }
 function render(){
   $("debtVal").textContent = money(S.debt);
   $("monthVal").textContent = "MONTH " + Math.min(S.month,48) + "/48";
-  $("infVal").textContent = dispInf().toFixed(1) + "%";
+  const frac = S.playing && !S.paused && !S.ended ? clamp(acc / MONTH_MS, 0, 1) : 0;
+  const liveInf = S.inf + (infTarget() - S.inf) * 0.55 * frac;
+  const liveU = S.u + (uTarget() - S.u) * 0.55 * frac;
+  const liveGdp = S.gdp + (gdpTarget() - S.gdp) * 0.55 * frac;
+  const liveDisp = S.lieLeft > 0 ? liveInf * 0.6 : liveInf;
+  S._live = {inf: liveInf, u: liveU, gdp: liveGdp, disp: liveDisp};
+  $("infVal").textContent = liveDisp.toFixed(1) + "%";
   const gapNow = S.neutral - S.rate, tr = $("infTrend");
   if(tr){
     if(gapNow > 0.3){ tr.textContent = "\u25B2"; tr.style.color = "#FF8A75"; }
@@ -224,10 +239,10 @@ function render(){
     else { tr.textContent = ""; }
   }
   $("rateVal").textContent = S.rate.toFixed(2) + "%";
-  const pct = (S.needle*100).toFixed(1) + "%";
+  const pct = (needleFrom(S._live.inf, S._live.u, S._live.gdp)*100).toFixed(1) + "%";
   $("gmark").style.left = pct; $("gmark2").style.left = pct;
-  $("gasVal").textContent = "$" + gasNow().toFixed(2);
-  $("eggsVal").textContent = "$" + eggsNow().toFixed(2);
+  $("gasVal").textContent = "$" + gasLive().toFixed(2);
+  $("eggsVal").textContent = "$" + eggsLive().toFixed(2);
   $("jobsVal").textContent = S.u.toFixed(1) + "%";
   $("livesVal").textContent = S.lives;
   $("sbrChip").classList.toggle("hidden", !S.sbr);
@@ -240,19 +255,19 @@ function render(){
   $("stRate").textContent = S.playing || S.ended ? S.rate.toFixed(2) + "%" : "-";
   $("stDebt").textContent = S.playing || S.ended ? tFmt(S.debt - DEBT0) : "-";
   /* GDP left, CPI right: the two ends, always in your face */
-  const gdpPct = clamp((S.gdp + 5) / 11 * 100, 0, 100);
+  const gdpPct = clamp((S._live.gdp + 4) / 10 * 100, 0, 100);
   $("gdpFill").style.height = gdpPct + "%";
-  const fakePct = S.gdp > 0 ? clamp(S.distort * 0.35, 0, gdpPct) : 0;
+  const fakePct = S._live.gdp > 0 ? clamp(S.distort * 0.35, 0, gdpPct) : 0;
   $("gdpFake").style.height = fakePct + "%";
-  $("gdpVal").textContent = (S.gdp >= 0 ? "+" : "") + S.gdp.toFixed(1) + "%";
-  $("gdpBar").classList.toggle("low", S.gdp < 1.2 && S.gdp >= -0.5);
-  $("gdpBar").classList.toggle("bad", S.gdp < -0.5);
-  $("gdpBar").classList.toggle("danger", S.gdp <= -2.5);
-  const cpiPct = clamp((dispInf() + 1) / 13 * 100, 0, 100);
+  $("gdpVal").textContent = (S._live.gdp >= 0 ? "+" : "") + S._live.gdp.toFixed(1) + "%";
+  $("gdpBar").classList.toggle("low", S._live.gdp < 1.2 && S._live.gdp >= -0.5);
+  $("gdpBar").classList.toggle("bad", S._live.gdp < -0.5);
+  $("gdpBar").classList.toggle("danger", S._live.gdp <= -2.5);
+  const cpiPct = clamp((S._live.disp + 1) / 11 * 100, 0, 100);
   $("cpiFill").style.height = cpiPct + "%";
-  $("cpiVal").textContent = dispInf().toFixed(1) + "%";
-  $("cpiBar").classList.toggle("hot", S.inf >= 4.5 && S.inf < 7.5);
-  $("cpiBar").classList.toggle("danger", S.inf >= 7.5);
+  $("cpiVal").textContent = S._live.disp.toFixed(1) + "%";
+  $("cpiBar").classList.toggle("hot", S._live.inf >= 4.5 && S._live.inf < 7.5);
+  $("cpiBar").classList.toggle("danger", S._live.inf >= 7.5);
   setScene(sceneFor());
   renderScenePrices();
 }
@@ -409,6 +424,14 @@ function bustCard(){
 }
 
 /* ---------- engine ---------- */
+function infTarget(){ return 2.2 + (S.neutral - S.rate) * 1.5 + (S.war ? 0.9 : 0) + (S.scarHot || 0); }
+function uTarget(){ return 4.3 + (S.rate - (S.neutral + 0.1)) * 1.05 + (S.scarCold || 0) * 0.6; }
+function gdpTarget(){ const gap = S.neutral - S.rate; return 2.3 - (S.rate - (S.neutral + 0.2)) * 0.85 + (gap > 0.25 ? S.distort * 0.016 : 0) + (S.war ? -0.8 : 0); }
+function needleFrom(inf, u, gdp){
+  let n = 0.5 + (inf - 2) * 0.062 - (u - 4.4) * 0.052 + clamp((gdp - 2) * 0.012, -0.14, 0.08);
+  if(inf < 1) n -= (1 - inf) * 0.028;
+  return clamp(n, 0, 1);
+}
 const MONTH_MS = 4200;
 let acc = 0, lastTs = 0;
 function loop(ts){
@@ -416,6 +439,9 @@ function loop(ts){
   if(!S) return;
   const dt = Math.min(100, ts - (lastTs || ts)); lastTs = ts;
   if(S.playing && !S.ended){
+    wobT = ts;
+    const driftT = clamp(1 + (S.neutral - S.rate) * 0.035, 0.9, 1.12);
+    S.streetDrift = (S.streetDrift || 1) + (driftT - (S.streetDrift || 1)) * Math.min(1, dt / 800);
     const annual = 0.021 + S.rate*0.0038 + (S.war ? 0.012 : 0);
     S.debt *= 1 + (annual/12) * (dt / MONTH_MS);
     render();
@@ -433,13 +459,13 @@ function monthTick(){
   /* the economy's neutral rate wanders, so sitting still stops working */
   S.neutral = clamp(S.neutral + rnd(-0.10, 0.10) + (4.7 - S.neutral) * 0.01, 3.4, 6.2);
   /* high rate: prices settle, jobs bleed. low rate: jobs heal, prices run. no safe corner. */
-  const target = 2.2 + (S.neutral - S.rate) * 1.5 + (S.war ? 0.9 : 0) + (S.scarHot || 0);
+  const target = infTarget();
   S.infVel += (target - S.inf) * 0.34 * D.drift;
   S.infVel *= 0.62;
   S.inf += S.infVel + rnd(-0.15, 0.15) * D.noise + S.shockInf;
   S.shockInf *= 0.45;
   S.inf = clamp(S.inf, -1.5, 45);
-  const uT = 4.3 + (S.rate - (S.neutral + 0.1)) * 1.05 + (S.scarCold || 0) * 0.6;
+  const uT = uTarget();
   S.uVel += (uT - S.u) * 0.24 * D.drift;
   S.uVel *= 0.66;
   S.u += S.uVel + rnd(-0.07, 0.07) * D.noise;
@@ -452,7 +478,7 @@ function monthTick(){
   else S.distort -= 2.6 + (-gap) * 1.4;
   S.distort = clamp(S.distort, 0, 100);
   S.peakDistort = Math.max(S.peakDistort, S.distort);
-  const gdpT = 2.3 - (S.rate - (S.neutral + 0.2)) * 0.85 + (gap > 0.25 ? S.distort * 0.016 : 0) + (S.war ? -0.8 : 0);
+  const gdpT = gdpTarget();
   S.gdpVel += (gdpT - S.gdp) * 0.26 * D.drift;
   S.gdpVel *= 0.64;
   S.gdp += S.gdpVel + rnd(-0.18, 0.18) * D.noise;
@@ -487,9 +513,7 @@ function monthTick(){
   if(S.freezeLeft > 0){ S.freezeLeft--; if(S.freezeLeft === 0){ S.gasFrozen = false; S.frozenGas = null; toast("PRICE CONTROLS LIFTED"); pushWire("Main Street Post", "Controls lifted. The gas sign catches up all at once.", {brk:true}); } }
   if(S.controlsLeft > 0) S.controlsLeft--;
   if(S.lieLeft > 0) S.lieLeft--;
-  let n = 0.5 + (S.inf - 2) * 0.062 - (S.u - 4.4) * 0.052 + clamp((S.gdp - 2) * 0.012, -0.14, 0.08);
-  if(S.inf < 1) n -= (1 - S.inf) * 0.028;
-  S.needle = clamp(n, 0, 1);
+  S.needle = needleFrom(S.inf, S.u, S.gdp);
   S.history.push(S.needle);
   S.peakInf = Math.max(S.peakInf, S.inf);
   S.devSum += Math.abs(S.needle - 0.5);
@@ -550,8 +574,38 @@ function emergencySave(side){
 }
 
 /* ---------- audio: generated in code, no files ---------- */
-let AC = null, musicNodes = null, musicTimer = null, chordIx = 0;
-const CHORDS = [[110,220,261.63,329.63],[87.31,174.61,220,261.63],[98,196,246.94,293.66],[130.81,196,261.63,329.63]];
+let AC = null, musicNodes = null, musicTimer = null;
+const PROG = [
+  {root:110, pad:[110,164.81,220,261.63], arp:[440,523.25,659.25,523.25]},
+  {root:87.31, pad:[87.31,130.81,174.61,220], arp:[349.23,440,523.25,440]},
+  {root:98, pad:[98,146.83,196,246.94], arp:[392,493.88,587.33,493.88]},
+  {root:130.81, pad:[130.81,164.81,196,261.63], arp:[523.25,659.25,783.99,659.25]}
+];
+let seqIx = 0;
+function mtone(f0, dur, type, vol){
+  if(!S || !S.settings || !S.settings.music) return;
+  const c = ac(); if(!c) return;
+  const t = c.currentTime;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || "sine"; o.frequency.setValueAtTime(f0, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol || 0.08, t + 0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+}
+function seqStep(){
+  if(!musicNodes || !AC) return;
+  const bar = Math.floor(seqIx / 8) % 4, st = seqIx % 8, ch = PROG[bar];
+  if(st === 0){
+    const t = AC.currentTime;
+    musicNodes.oscs.forEach((o, i) => o.frequency.setTargetAtTime(ch.pad[i % 4] * (i >= 4 ? 2 : 1), t, 0.4));
+  }
+  if(st === 0 || st === 4) mtone(ch.root, 0.34, "triangle", 0.13);
+  if(st === 6) mtone(ch.root * 1.5, 0.2, "triangle", 0.06);
+  if(st % 2 === 0) mtone(ch.arp[(seqIx >> 1) % 4], 0.26, "sine", 0.075);
+  if(st === 7 && bar === 3) mtone(ch.arp[2] * 2, 0.34, "sine", 0.04);
+  seqIx++;
+}
 function ac(){ if(!AC){ try{ AC = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} } if(AC && AC.state === "suspended") AC.resume(); return AC; }
 function tone(f0, f1, dur, type, vol, delay){
   if(!S || !S.settings || !S.settings.sfx) return;
@@ -577,23 +631,17 @@ function sfx(name){
   else if(name === "win"){ [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, null, 0.15, "triangle", 0.08, i * 0.1)); }
   else if(name === "danger") tone(96, null, 0.1, "sine", 0.11);
 }
-function musicStep(){
-  if(!musicNodes || !AC) return;
-  const t = AC.currentTime;
-  musicNodes.oscs.forEach((o, i) => o.frequency.setTargetAtTime(CHORDS[chordIx][i % 4] * (i >= 4 ? 2 : 1), t, 0.5));
-  chordIx = (chordIx + 1) % CHORDS.length;
-}
 function musicStart(){
   if(musicNodes || !S.settings.music) return;
   const c = ac(); if(!c) return;
-  const g = c.createGain(); g.gain.value = 0.08;
-  const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 1500;
-  const oscs = CHORDS[0].map(fr => { const o = c.createOscillator(); o.type = "triangle"; o.frequency.value = fr; o.connect(f); o.start(); return o; });
-  const oscs2 = CHORDS[0].map(fr => { const o = c.createOscillator(); o.type = "sine"; o.frequency.value = fr * 2; const og = c.createGain(); og.gain.value = 0.35; o.connect(og); og.connect(f); o.start(); return o; });
+  const g = c.createGain(); g.gain.value = 0.05;
+  const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 1300;
+  const oscs = PROG[0].pad.map(fr => { const o = c.createOscillator(); o.type = "triangle"; o.frequency.value = fr; o.connect(f); o.start(); return o; });
+  const oscs2 = PROG[0].pad.map(fr => { const o = c.createOscillator(); o.type = "sine"; o.frequency.value = fr * 2; const og = c.createGain(); og.gain.value = 0.3; o.connect(og); og.connect(f); o.start(); return o; });
   oscs.push(...oscs2);
   f.connect(g); g.connect(c.destination);
-  musicNodes = {oscs: oscs, g: g}; chordIx = 1;
-  musicTimer = setInterval(musicStep, 3600);
+  musicNodes = {oscs: oscs, g: g}; seqIx = 0;
+  musicTimer = setInterval(seqStep, 326);
 }
 function musicStop(){
   if(!musicNodes) return;
