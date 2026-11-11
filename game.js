@@ -39,7 +39,7 @@ function freshState(){
     screen:"title", playing:false, paused:false, ended:false,
     month:1, week:1, inf:2.4, rate:5.0, u:4.2, debt:DEBT0,
     priceLevel:1, needle:0.5, item:ITEMS[0], itemIn:0,
-    history:[], wire:[], unread:0, ladder:0, dangerRun:0,
+    history:[], wire:[], unread:0, ladder:0, dangerRun:0, lives:5, meetings:0, scarHot:0, scarCold:0,
     war:false, warLeft:0, gasMult:1, gasFrozen:false, freezeLeft:0,
     jekyllDone:false, scandalDone:false, bailoutDone:false, corpDone:false,
     controlsLeft:0, lieLeft:0, shockInf:0, lastEvent:-9, warDone:false,
@@ -61,7 +61,7 @@ function pushWire(src, head, opts){
   if(!$("screenWire") || $("screenWire").classList.contains("hidden")){ S.unread++; }
   renderWire();
 }
-function streetHeat(){ return clamp(1 + (S.inf - 2) * 0.65, 0.5, 16); }
+function streetHeat(){ return clamp(1 + (S.inf - 2) * 1.0, 0.5, 30); }
 function gasNow(){ return 3.49 * S.priceLevel * S.gasMult * streetHeat(); }
 function eggsNow(){ return 2.99 * S.priceLevel * streetHeat(); }
 
@@ -134,6 +134,7 @@ function setScene(name){
   const showEl = sceneFlip ? $("sceneA") : $("sceneB");
   const hideEl = sceneFlip ? $("sceneB") : $("sceneA");
   showEl.style.backgroundImage = "url(assets/scene-" + name + ".webp)";
+  $("sceneBg").style.backgroundImage = "url(assets/scene-" + name + ".webp)";
   showEl.style.opacity = 1; hideEl.style.opacity = 0;
   sceneFlip = !sceneFlip;
   layoutPrices();
@@ -177,8 +178,9 @@ function layoutPrices(){
   document.documentElement.style.setProperty("--dockh", dockH + "px");
   const W = stage.clientWidth, H = stage.clientHeight - dockH;
   const cfg = SCENE_PRICES[S.scene] || SCENE_PRICES.normal;
-  const scale = Math.max(W / cfg.iw, H / cfg.ih);
-  const offX = (W - cfg.iw * scale) * 0.5, offY = (H - cfg.ih * scale) * 1.0;
+  const mobile = W < 760;
+  const scale = mobile ? Math.min(W / cfg.iw, H / cfg.ih) : Math.max(W / cfg.iw, H / cfg.ih);
+  const offX = (W - cfg.iw * scale) * 0.5, offY = mobile ? 30 : (H - cfg.ih * scale) * 1.0;
   const gasEl = $("sceneGas"), gasTxt = $("sceneGasTxt");
   const gh = placePrice(gasEl, cfg, cfg.gas.r, scale, offX, offY);
   gasEl.style.background = cfg.gas.bg; gasEl.style.color = cfg.gas.fg;
@@ -227,6 +229,7 @@ function render(){
   $("gasVal").textContent = "$" + gasNow().toFixed(2);
   $("eggsVal").textContent = "$" + eggsNow().toFixed(2);
   $("jobsVal").textContent = S.u.toFixed(1) + "%";
+  $("livesVal").textContent = S.lives;
   $("itemName").textContent = S.item ? S.item.name : "EMPTY";
   $("itemTap").textContent = S.item ? "TAP TO USE" : "";
   $("itemSlot").classList.toggle("has-item", !!S.item);
@@ -262,7 +265,7 @@ function toast(msg){
 
 /* ---------- overlay cards ---------- */
 function showCard(tag, tagClass, title, body, primary, secondary, hint){
-  S.paused = true;
+  S.paused = true; sfx("card");
   $("overlayCard").innerHTML =
     '<span class="tagchip ' + tagClass + '">' + tag + "</span>" +
     "<h2>" + title + "</h2>" +
@@ -278,7 +281,7 @@ function showCard(tag, tagClass, title, body, primary, secondary, hint){
 }
 function hideCard(){ $("overlay").classList.add("hidden"); if(S.playing && !S.ended) S.paused = false; }
 
-function warningCard(side){
+function warningCard(side){ sfx("alarm");
   if(side === "hot"){
     pushWire("Savers\u2019 Gazette", "Pensions are shrinking. The retirees are marching on the bank.", {brk:true, warn:true});
     showCard("WARNING &middot; SAVERS\u2019 GAZETTE", "tag-warn", "Savers are marching",
@@ -417,13 +420,13 @@ function monthTick(){
   /* the economy's neutral rate wanders, so sitting still stops working */
   S.neutral = clamp(S.neutral + rnd(-0.10, 0.10) + (4.7 - S.neutral) * 0.01, 3.4, 6.2);
   /* high rate: prices settle, jobs bleed. low rate: jobs heal, prices run. no safe corner. */
-  const target = 2.2 + (S.neutral - S.rate) * 1.5 + (S.war ? 0.9 : 0);
+  const target = 2.2 + (S.neutral - S.rate) * 1.5 + (S.war ? 0.9 : 0) + (S.scarHot || 0);
   S.infVel += (target - S.inf) * 0.34 * D.drift;
   S.infVel *= 0.62;
   S.inf += S.infVel + rnd(-0.15, 0.15) * D.noise + S.shockInf;
   S.shockInf *= 0.45;
   S.inf = clamp(S.inf, -1.5, 45);
-  const uT = 4.3 + (S.rate - (S.neutral + 0.1)) * 1.05;
+  const uT = 4.3 + (S.rate - (S.neutral + 0.1)) * 1.05 + (S.scarCold || 0) * 0.6;
   S.uVel += (uT - S.u) * 0.24 * D.drift;
   S.uVel *= 0.66;
   S.u += S.uVel + rnd(-0.07, 0.07) * D.noise;
@@ -485,7 +488,8 @@ function monthTick(){
   if(S.needle < 0.68) S.warnedR = 0;
   if(S.needle > 0.32) S.warnedL = 0;
   /* ladder */
-  if(S.needle >= 0.72){ S.dangerRun++; } else S.dangerRun = 0;
+  if(S.needle >= 0.72){ S.dangerRun++; sfx("danger"); } else S.dangerRun = 0;
+  if(S.needle <= 0.28) sfx("danger");
   if(S.dangerRun === 2 && S.ladder < 3){ S.ladder++; ladderCard(S.ladder); }
   /* events */
   if(!S.paused && S.month - S.lastEvent >= 3 && Math.random() < 0.36){
@@ -495,10 +499,81 @@ function monthTick(){
   ambientHeadline();
   if(Math.random() < 0.4) ambientHeadline();
   S.month++;
-  if(S.needle >= 0.985 || S.inf >= 18) return endTerm("inflation");
-  if(S.needle <= 0.015 || S.u >= 11.5) return endTerm("recession");
+  if((S.needle >= 0.985 && S.inf >= 7.5) || S.inf >= 18){ if(!emergencySave("hot")) return endTerm("inflation"); }
+  if((S.needle <= 0.015 && S.u >= 8.5) || S.u >= 11.5){ if(!emergencySave("cold")) return endTerm("recession"); }
   if(S.month > 48) return endTerm("survived");
   render();
+}
+
+/* ---------- the five lives: emergency meetings ---------- */
+function emergencySave(side){
+  if(S.lives <= 0) return false;
+  S.lives--; S.meetings++;
+  S.warnedR = 0; S.warnedL = 0; S.dangerRun = 0;
+  if(side === "hot"){
+    const pull = Math.max(1.3, 3.4 - S.meetings * 0.5);
+    S.inf = Math.max(2.6, S.inf - pull); S.infVel *= 0.2; S.debt *= 1.008; S.scarHot += 0.4; S.priceLevel *= 1.05;
+    showCard("EMERGENCY MEETING", "tag-event", "THE COMMITTEE BLINKS FIRST",
+      "Sunday night. The governors on a secure call, one sentence in the statement. The rescue drags inflation back from the edge and the crowd goes home, for now. The ticker sends its regards. Emergency meetings left: " + S.lives + ".",
+      "ADJOURN THE MEETING", null, "Five per term. The sixth crisis is yours alone.");
+  } else {
+    const pullU = Math.max(1.2, 2.8 - S.meetings * 0.4);
+    S.u = Math.max(3.4, S.u - pullU); S.gdp = Math.max(S.gdp, 0.8); S.gdpVel += 0.4; S.distort += 8; S.scarCold += 0.35;
+    showCard("EMERGENCY MEETING", "tag-event", "PRINTING AT MIDNIGHT",
+      "The facility opens before the markets do. Credit flows, the queues shorten, the dole offices empty by Friday. It was bought with the printer, and the bill is already on the ticker. Emergency meetings left: " + S.lives + ".",
+      "ADJOURN THE MEETING", null, "Five per term. The sixth crisis is yours alone.");
+  }
+  sfx("save");
+  return true;
+}
+
+/* ---------- audio: generated in code, no files ---------- */
+let AC = null, musicNodes = null, musicTimer = null, chordIx = 0;
+const CHORDS = [[110,220,261.63,329.63],[87.31,174.61,220,261.63],[98,196,246.94,293.66],[130.81,196,261.63,329.63]];
+function ac(){ if(!AC){ try{ AC = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} } if(AC && AC.state === "suspended") AC.resume(); return AC; }
+function tone(f0, f1, dur, type, vol, delay){
+  if(!S || !S.settings || !S.settings.sfx) return;
+  const c = ac(); if(!c) return;
+  const t = c.currentTime + (delay || 0);
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || "sine"; o.frequency.setValueAtTime(f0, t);
+  if(f1) o.frequency.exponentialRampToValueAtTime(Math.max(f1, 1), t + dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol || 0.1, t + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+}
+function sfx(name){
+  if(!S || !S.settings || !S.settings.sfx) return;
+  if(name === "click") tone(1150, 900, 0.05, "square", 0.045);
+  else if(name === "card") tone(300, 520, 0.09, "triangle", 0.055);
+  else if(name === "alarm"){ tone(520, 520, 0.12, "square", 0.06); tone(392, 392, 0.15, "square", 0.06, 0.14); }
+  else if(name === "item"){ tone(990, null, 0.07, "sine", 0.09); tone(1318, null, 0.11, "sine", 0.09, 0.07); }
+  else if(name === "save"){ [392, 523.25, 659.25].forEach((f, i) => tone(f, null, 0.13, "triangle", 0.08, i * 0.08)); }
+  else if(name === "death") tone(320, 52, 0.75, "sawtooth", 0.09);
+  else if(name === "win"){ [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, null, 0.15, "triangle", 0.08, i * 0.1)); }
+  else if(name === "danger") tone(96, null, 0.1, "sine", 0.11);
+}
+function musicStep(){
+  if(!musicNodes || !AC) return;
+  const t = AC.currentTime;
+  musicNodes.oscs.forEach((o, i) => o.frequency.setTargetAtTime(CHORDS[chordIx][i], t, 0.5));
+  chordIx = (chordIx + 1) % CHORDS.length;
+}
+function musicStart(){
+  if(musicNodes || !S.settings.music) return;
+  const c = ac(); if(!c) return;
+  const g = c.createGain(); g.gain.value = 0.04;
+  const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 640;
+  const oscs = CHORDS[0].map(fr => { const o = c.createOscillator(); o.type = "triangle"; o.frequency.value = fr; o.connect(f); o.start(); return o; });
+  f.connect(g); g.connect(c.destination);
+  musicNodes = {oscs: oscs, g: g}; chordIx = 1;
+  musicTimer = setInterval(musicStep, 3600);
+}
+function musicStop(){
+  if(!musicNodes) return;
+  try{ musicNodes.oscs.forEach(o => o.stop()); musicNodes.g.disconnect(); }catch(e){}
+  musicNodes = null; if(musicTimer) clearInterval(musicTimer); musicTimer = null;
 }
 
 /* ---------- endings & report ---------- */
@@ -513,6 +588,7 @@ function gradeFor(){
 }
 function endTerm(type){
   if(S.ended) return;
+  musicStop(); sfx(type === "survived" ? "win" : "death");
   S.ended = true; S.playing = false; S.endType = type;
   $("sidebars").classList.add("hidden");
   const months = Math.min(S.month, 48);
@@ -560,6 +636,8 @@ function showReport(){
   $("repPeak").textContent = S.peakInf.toFixed(1) + "%";
   $("repDebt").textContent = tFmt(S.debt - DEBT0);
   $("repEnd").textContent = endLabel();
+  $("repMeet").textContent = S.meetings;
+  $("repLives").textContent = S.lives;
   $("squares").innerHTML = S.history.map(n => {
     const d = Math.abs(n - 0.5);
     const c = n < 0.2 ? "#4E7BD9" : n > 0.8 ? "#D94F3E" : d < 0.18 ? "#39C96B" : "#E8C93C";
@@ -642,6 +720,7 @@ function closeSheets(){
   renderWire();
 }
 function startTerm(){
+  musicStart();
   const keepDiff = S ? S.diff : "chair";
   const keepSet = S ? S.settings : null;
   S = freshState();
@@ -665,20 +744,20 @@ function resign(){
 
 /* ---------- wiring ---------- */
 function bindSeg(el, fn){
-  el.querySelectorAll("div").forEach(d => d.onclick = () => {
-    el.querySelectorAll("div").forEach(x => x.classList.remove("on"));
-    d.classList.add("on"); fn(d.dataset.diff);
-  });
+  el.querySelectorAll(".dc").forEach(d => d.onclick = () => { sfx("click"); fn(d.dataset.diff); });
 }
+const DIFFLVL = {intern:1, chair:2, legend:3};
 function setDiff(d){
   S.diff = d;
   ["diffSeg","diffSeg2"].forEach(id => {
-    $(id).querySelectorAll("div").forEach(x => x.classList.toggle("on", x.dataset.diff === d));
+    const el = $(id); if(!el) return;
+    el.querySelectorAll(".dc").forEach(x => x.classList.toggle("on", DIFFLVL[x.dataset.diff] <= DIFFLVL[d]));
   });
 }
 document.addEventListener("DOMContentLoaded", () => {
   S = freshState();
   $("sceneA").style.backgroundImage = "url(assets/scene-normal.webp)";
+  $("sceneBg").style.backgroundImage = "url(assets/scene-normal.webp)";
   bindSeg($("diffSeg"), setDiff); bindSeg($("diffSeg2"), setDiff);
   $("startBtn").onclick = () => { startLoad(); };
   $("screenLoad").onclick = () => { finishLoad(); };
@@ -696,16 +775,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const key = sw.dataset.set, on = sw.classList.contains("on");
     S.settings[key] = on;
     if(key === "ticker") $("prices").classList.toggle("hidden", !on || !S.playing);
+    if(key === "music"){ if(on && S.playing) musicStart(); else musicStop(); }
   });
   $("resignBtn").onclick = resign;
-  $("rateUp").onclick = () => { if(S.playing && !S.paused){ S.rate = clamp(S.rate + 0.25, 0, 20); render(); } };
-  $("rateDown").onclick = () => { if(S.playing && !S.paused){ S.rate = clamp(S.rate - 0.25, 0, 20); render(); } };
+  $("rateUp").onclick = () => { if(S.playing && !S.paused){ S.rate = clamp(S.rate + 0.25, 0, 20); sfx("click"); render(); } };
+  $("rateDown").onclick = () => { if(S.playing && !S.paused){ S.rate = clamp(S.rate - 0.25, 0, 20); sfx("click"); render(); } };
   $("itemSlot").onclick = () => {
     if(!S.playing || S.paused || !S.item) return;
     const it = S.item; S.item = null; S.itemIn = 5 + Math.floor(Math.random()*4);
     if(it.side === "hot" || (it.side === "any" && S.needle >= 0.5)){ S.inf = Math.max(0.4, S.inf - 1.7); }
     else if(it.side === "cold" || it.side === "any"){ S.u = Math.max(2.2, S.u - 1.3); S.inf += 0.4; }
-    toast(it.name + " USED");
+    sfx("item"); toast(it.name + " USED");
     render();
   };
   $("shareBtn").onclick = async () => {

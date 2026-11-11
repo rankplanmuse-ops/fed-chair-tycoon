@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fed Chair Tycoon</title>
 <link rel="icon" href="assets/icon.png">
-<link rel="stylesheet" href="styles.css?v=8">
+<link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
 <div class="app">
@@ -19,6 +19,7 @@
   </aside>
 
   <main class="stage" id="stage">
+    <div class="scene-bg" id="sceneBg"></div>
     <div class="scene" id="sceneA"></div>
     <div class="scene" id="sceneB"></div>
     <div class="scrim-top"></div>
@@ -46,6 +47,7 @@
       <div class="pchip">GAS <b id="gasVal">$3.49</b></div>
       <div class="pchip">EGGS <b id="eggsVal">$2.99</b></div>
       <div class="pchip">JOBS <b id="jobsVal">4.2%</b></div>
+      <div class="pchip">LIVES <b id="livesVal">5</b></div>
     </div>
 
     <div class="sidebars hidden" id="sidebars">
@@ -69,10 +71,11 @@
       </div>
       <div class="title-menu">
         <button class="btn-start" id="startBtn">START YOUR TERM</button>
-        <div class="seg" id="diffSeg">
-          <div data-diff="intern">INTERN</div>
-          <div data-diff="chair" class="on">CHAIR</div>
-          <div data-diff="legend">LEGEND</div>
+        <div class="diffpick" id="diffSeg">
+          <span class="dc-label">Difficulty:</span>
+          <span class="dc on" data-diff="intern"></span>
+          <span class="dc on" data-diff="chair"></span>
+          <span class="dc" data-diff="legend"></span>
         </div>
         <div class="row2">
           <button class="btn-ghost" id="hallBtn">HALL OF CHAIRS</button>
@@ -102,6 +105,7 @@
             <div class="rule"><div class="ic" style="background:rgba(127,178,255,.16);color:#7FB2FF">&#9650;&#9660;</div><div class="rt"><b>The lever.</b> One interest rate, moved in 0.25 steps. It works slowly, like everything in this building.</div></div>
             <div class="rule"><div class="ic" style="background:rgba(255,209,102,.16);color:#FFD166">&#9889;</div><div class="rt"><b>Items.</b> Washington speak, single use: speeches, blame, emergency buttons. They reset the street, briefly.</div></div>
             <div class="rule"><div class="ic" style="background:rgba(255,138,117,.16);color:#FF8A75">&#9968;</div><div class="rt"><b>The trap.</b> Cheap money builds projects that only look good at cheap rates. They show up in GDP first. They bust later, when you hike, and the bust was built in the boom.</div></div>
+            <div class="rule"><div class="ic" style="background:rgba(216,52,44,.16);color:#FF8A75">&#10084;</div><div class="rt"><b>Five lives.</b> When the needle pegs, an emergency meeting pulls you back from the edge. You get five per term. The sixth crisis is final.</div></div>
           </div>
           <button class="btn-primary" id="takeLeverBtn">TAKE THE LEVER</button>
         </div>
@@ -167,11 +171,11 @@
         <div class="srow"><span class="ring" style="background:#FF9D8A"></span><span class="slabel">News ticker</span><span class="sw on" data-set="ticker"></span></div>
         <div class="srow"><span class="ring" style="background:#B79CFF"></span><span class="slabel">Haptics</span><span class="sw" data-set="haptics"></span></div>
       </div>
-      <div class="group-label">DIFFICULTY</div>
-      <div class="seg" id="diffSeg2">
-        <div data-diff="intern">INTERN</div>
-        <div data-diff="chair" class="on">CHAIR</div>
-        <div data-diff="legend">LEGEND</div>
+      <div class="diffpick" id="diffSeg2">
+        <span class="dc-label">Difficulty:</span>
+        <span class="dc on" data-diff="intern"></span>
+        <span class="dc on" data-diff="chair"></span>
+        <span class="dc" data-diff="legend"></span>
       </div>
       <div class="letter">
         <div class="stamp-seal">FED</div>
@@ -199,6 +203,8 @@
           <div class="cell"><div class="k">PEAK INFLATION</div><div class="v" id="repPeak">9.8%</div></div>
           <div class="cell"><div class="k">DEBT ADDED</div><div class="v" id="repDebt">+$9.22T</div></div>
           <div class="cell"><div class="k">HOW IT ENDED</div><div class="v" id="repEnd">Resigned</div></div>
+          <div class="cell"><div class="k">EMERGENCY MEETINGS</div><div class="v" id="repMeet">0</div></div>
+          <div class="cell"><div class="k">LIVES LEFT</div><div class="v" id="repLives">5</div></div>
         </div>
         <div class="strip"><div class="k">YOUR TERM, MONTH BY MONTH</div><div class="squares" id="squares"></div></div>
       </div>
@@ -254,6 +260,6 @@
   </aside>
 
 </div>
-<script src="game.js?v=8"></script>
+<script src="game.js?v=9"></script>
 </body>
 </html>
