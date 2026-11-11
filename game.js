@@ -61,8 +61,9 @@ function pushWire(src, head, opts){
   if(!$("screenWire") || $("screenWire").classList.contains("hidden")){ S.unread++; }
   renderWire();
 }
-function gasNow(){ return 3.49 * S.priceLevel * S.gasMult; }
-function eggsNow(){ return 2.99 * S.priceLevel; }
+function streetHeat(){ return clamp(1 + (S.inf - 2) * 0.65, 0.5, 16); }
+function gasNow(){ return 3.49 * S.priceLevel * S.gasMult * streetHeat(); }
+function eggsNow(){ return 2.99 * S.priceLevel * streetHeat(); }
 
 function ambientHeadline(){
   const g = gasNow(), e = eggsNow();
@@ -462,14 +463,14 @@ function monthTick(){
       pushWire("Union Daily", "Layoffs spiked this month. The canteen is quiet again.", {});
     }
   }
-  if(!S.gasFrozen) S.priceLevel *= 1 + S.inf/1200;
-  else S.priceLevel *= 1 + S.inf/1200; /* pressure builds under the freeze */
+  if(!S.gasFrozen) S.priceLevel *= 1 + S.inf/700;
+  else S.priceLevel *= 1 + S.inf/700; /* pressure builds under the freeze */
   S.gasMult += (1 - S.gasMult) * 0.25;
   if(S.war){ S.warLeft--; if(S.warLeft <= 0){ S.war = false; pushWire("Main Street Post", "Ceasefire signed. The convoys are going home.", {}); } }
   if(S.freezeLeft > 0){ S.freezeLeft--; if(S.freezeLeft === 0){ S.gasFrozen = false; S.frozenGas = null; toast("PRICE CONTROLS LIFTED"); pushWire("Main Street Post", "Controls lifted. The gas sign catches up all at once.", {brk:true}); } }
   if(S.controlsLeft > 0) S.controlsLeft--;
   if(S.lieLeft > 0) S.lieLeft--;
-  let n = 0.5 + (S.inf - 2) * 0.062 - (S.u - 4.4) * 0.060 + clamp((S.gdp - 2) * 0.012, -0.14, 0.08);
+  let n = 0.5 + (S.inf - 2) * 0.062 - (S.u - 4.4) * 0.052 + clamp((S.gdp - 2) * 0.012, -0.14, 0.08);
   if(S.inf < 1) n -= (1 - S.inf) * 0.028;
   S.needle = clamp(n, 0, 1);
   S.history.push(S.needle);
