@@ -47,7 +47,7 @@ function freshState(){
     gdp:2.1, gdpVel:0, distort:0, bustCd:0, peakDistort:0,
     frozenGas:null,
     warnedR:0, warnedL:0, peakInf:2.4, devSum:0, closest:0.5,
-    diff:"chair", settings:{sfx:true, music:true, ticker:true, haptics:false},
+    diff:"chair", settings:{sfx:true, music:true, ticker:true, haptics:false, track:0},
     scene:"normal", endType:null
   };
 }
@@ -160,11 +160,11 @@ function sceneFor(){
 /* rects are 0-1000 normalised boxes around the prices baked into each plate;
    layout maps them through the same cover/50% 92% maths the CSS background uses */
 const SCENE_PRICES = {
-  normal:    {iw:1120, ih:2240, gas:{r:[700,556,1014,624], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[97,797,190,846], tag:[189,807,241,835]}},
-  inflation: {iw:1120, ih:2240, gas:{r:[716,570,1014,632], bg:"#8E2418", fg:"#FF4A36"}, eggs:{r:[23,743,83,777], tag:null}},
-  recession: {iw:1152, ih:2048, gas:{r:[756,500,1014,572], bg:"#8E3B2A", fg:"#D8C58F"}, eggs:null},
-  disaster:  {iw:1152, ih:2048, gas:{r:[804,512,972,582], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[76,719,122,755], tag:null}},
-  war:       {iw:1120, ih:2240, gas:{r:[700,544,1014,608], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[97,787,193,827], tag:[191,795,233,821]}}
+  normal:    {iw:1120, ih:2240, gas:{r:[2,548,138,594], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[638,785,737,832], tag:[736,788,803,819]}},
+  inflation: {iw:1120, ih:2240, gas:{r:[7,556,192,632], bg:"#C9330F", fg:"#FF5A3C"}, eggs:{r:[643,725,719,766], tag:null}},
+  recession: {iw:1184, ih:2096, gas:{r:[0,496,135,553], bg:"#6B1F16", fg:"#D8C58F"}, eggs:null},
+  disaster:  {iw:1184, ih:2096, gas:{r:[38,505,190,565], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[688,701,743,730], tag:null}},
+  war:       {iw:1120, ih:2240, gas:{r:[15,562,182,603], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[818,778,904,816], tag:[900,782,956,810]}}
 };
 function priceStr(v){
   if(v >= 100) return String(Math.round(v));
@@ -185,18 +185,21 @@ function layoutPrices(){
   const dockEl = $("dock");
   const dockH = (dockEl && !dockEl.classList.contains("hidden")) ? dockEl.offsetHeight + 24 : 0;
   document.documentElement.style.setProperty("--dockh", dockH + "px");
-  const W = stage.clientWidth, H = stage.clientHeight - dockH;
+  const scEl = $("sceneA");
+  const W = scEl ? scEl.clientWidth : stage.clientWidth;
+  const H = scEl ? scEl.clientHeight : stage.clientHeight - dockH;
+  const baseX = scEl ? scEl.offsetLeft : 0;
   const cfg = SCENE_PRICES[S.scene] || SCENE_PRICES.normal;
-  const mobile = W < 760;
-  const scale = mobile ? Math.min(W / cfg.iw, H / cfg.ih) : Math.max(W / cfg.iw, H / cfg.ih);
-  const offX = (W - cfg.iw * scale) * 0.5, offY = mobile ? 30 : (H - cfg.ih * scale) * 1.0;
+  const scale = Math.min(W / cfg.iw, H / cfg.ih);
+  const offX = baseX + (W - cfg.iw * scale) * 0.5, offY = 30;
   const gasEl = $("sceneGas"), gasTxt = $("sceneGasTxt");
   const gh = placePrice(gasEl, cfg, cfg.gas.r, scale, offX, offY);
   gasEl.style.background = cfg.gas.bg; gasEl.style.color = cfg.gas.fg;
   const gtxt = gasTxt.textContent;
-  const visW = Math.max(44, W - parseFloat(gasEl.style.left) - 54);
-  gasTxt.style.width = visW + "px";
-  gasTxt.style.fontSize = Math.min(gh * 0.62, visW / Math.max(gtxt.length,1) * 1.62) + "px";
+  const gw = (cfg.gas.r[2]-cfg.gas.r[0]) / 1000 * cfg.iw * scale;
+  const est = [...gtxt].reduce((a,c) => a + (c === "." ? 0.32 : 0.56), 0);
+  gasTxt.style.width = gw + "px";
+  gasTxt.style.fontSize = Math.min(gh * 0.74, gw / Math.max(est,1) * 0.96) + "px";
   gasEl.classList.toggle("frozen", !!S.gasFrozen);
   const eggsEl = $("sceneEggs"), tagEl = $("sceneEggsTag");
   if(cfg.eggs){
@@ -211,23 +214,31 @@ function layoutPrices(){
     } else tagEl.style.display = "none";
   } else { eggsEl.style.display = "none"; tagEl.style.display = "none"; }
 }
-let lastGasTxt = "", lastFlip = 0;
+/* street prices step on a 3 second tick, like a real sign being re-priced */
+const DISP = {gas: 3.49, eggs: 2.99, at: 0};
+function stepPrices(now, force){
+  if(!force && now - DISP.at < 3000) return false;
+  DISP.at = now;
+  DISP.gas = S.gasFrozen && S.frozenGas ? S.frozenGas : gasLive();
+  DISP.eggs = eggsLive();
+  return true;
+}
+function flipEl(el){
+  if(!el || !S.playing) return;
+  el.classList.remove("flip"); void el.offsetWidth; el.classList.add("flip");
+}
+let lastGasTxt = "", lastEggsTxt = "";
 function renderScenePrices(){
   if(!S) return;
-  const gTxt = priceStr(S.gasFrozen && S.frozenGas ? S.frozenGas : gasLive());
-  if(gTxt !== lastGasTxt){
-    lastGasTxt = gTxt;
-    const now = performance.now();
-    if(now - lastFlip > 500 && S.playing){
-      lastFlip = now;
-      const sg = $("sceneGas");
-      sg.classList.remove("flip"); void sg.offsetWidth; sg.classList.add("flip");
-    }
+  if(stepPrices(performance.now(), false)){
+    const gTxt = priceStr(DISP.gas);
+    if(gTxt !== lastGasTxt){ lastGasTxt = gTxt; flipEl($("sceneGas")); }
+    $("sceneGasTxt").textContent = gTxt;
+    const e = priceStr(DISP.eggs);
+    if(e !== lastEggsTxt){ lastEggsTxt = e; flipEl($("sceneEggs")); }
+    $("sceneEggsVal").textContent = e;
+    $("sceneEggsTag").textContent = e;
   }
-  $("sceneGasTxt").textContent = gTxt;
-  const e = priceStr(eggsLive());
-  $("sceneEggsVal").textContent = e;
-  $("sceneEggsTag").textContent = e;
   layoutPrices();
 }
 
@@ -252,8 +263,8 @@ function render(){
   $("rateVal").textContent = S.rate.toFixed(2) + "%";
   const pct = (needleFrom(S._live.inf, S._live.u, S._live.gdp)*100).toFixed(1) + "%";
   $("gmark").style.left = pct; $("gmark2").style.left = pct;
-  $("gasVal").textContent = "$" + gasLive().toFixed(2);
-  $("eggsVal").textContent = "$" + eggsLive().toFixed(2);
+  $("gasVal").textContent = "$" + DISP.gas.toFixed(2);
+  $("eggsVal").textContent = "$" + DISP.eggs.toFixed(2);
   $("jobsVal").textContent = S.u.toFixed(1) + "%";
   $("livesVal").textContent = S.lives;
   $("sbrChip").classList.toggle("hidden", !S.sbr);
@@ -584,80 +595,32 @@ function emergencySave(side){
   return true;
 }
 
-/* ---------- audio: generated in code, no files ---------- */
-let AC = null, musicNodes = null, musicTimer = null;
-const PROG = [
-  {root:110, pad:[110,164.81,220,261.63], arp:[440,523.25,659.25,523.25]},
-  {root:87.31, pad:[87.31,130.81,174.61,220], arp:[349.23,440,523.25,440]},
-  {root:98, pad:[98,146.83,196,246.94], arp:[392,493.88,587.33,493.88]},
-  {root:130.81, pad:[130.81,164.81,196,261.63], arp:[523.25,659.25,783.99,659.25]}
+/* ---------- music: real royalty-free tracks (Kevin MacLeod, CC BY 4.0) ---------- */
+let AC = null;
+const TRACKS = [
+  {title:"Monkeys Spinning Monkeys", file:"assets/music-monkeys.mp3"},
+  {title:"Merry Go", file:"assets/music-merrygo.mp3"},
+  {title:"Pixelland", file:"assets/music-pixelland.mp3"}
 ];
-let seqIx = 0;
-function mtone(f0, dur, type, vol){
-  if(!S || !S.settings || !S.settings.music) return;
-  const c = ac(); if(!c) return;
-  const t = c.currentTime;
-  const o = c.createOscillator(), g = c.createGain();
-  o.type = type || "sine"; o.frequency.setValueAtTime(f0, t);
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(vol || 0.08, t + 0.015);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
-}
-function seqStep(){
-  if(!musicNodes || !AC) return;
-  const bar = Math.floor(seqIx / 8) % 4, st = seqIx % 8, ch = PROG[bar];
-  if(st === 0){
-    const t = AC.currentTime;
-    musicNodes.oscs.forEach((o, i) => o.frequency.setTargetAtTime(ch.pad[i % 4] * (i >= 4 ? 2 : 1), t, 0.4));
-  }
-  if(st === 0 || st === 4) mtone(ch.root, 0.34, "triangle", 0.13);
-  if(st === 6) mtone(ch.root * 1.5, 0.2, "triangle", 0.06);
-  if(st % 2 === 0) mtone(ch.arp[(seqIx >> 1) % 4], 0.26, "sine", 0.075);
-  if(st === 7 && bar === 3) mtone(ch.arp[2] * 2, 0.34, "sine", 0.04);
-  seqIx++;
-}
-function ac(){ if(!AC){ try{ AC = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} } if(AC && AC.state === "suspended") AC.resume(); return AC; }
-function tone(f0, f1, dur, type, vol, delay){
-  if(!S || !S.settings || !S.settings.sfx) return;
-  const c = ac(); if(!c) return;
-  const t = c.currentTime + (delay || 0);
-  const o = c.createOscillator(), g = c.createGain();
-  o.type = type || "sine"; o.frequency.setValueAtTime(f0, t);
-  if(f1) o.frequency.exponentialRampToValueAtTime(Math.max(f1, 1), t + dur);
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(vol || 0.1, t + 0.012);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
-}
-function sfx(name){
-  if(!S || !S.settings || !S.settings.sfx) return;
-  if(name === "click") tone(1150, 900, 0.05, "square", 0.09);
-  else if(name === "tick") tone(660, null, 0.03, "sine", 0.045);
-  else if(name === "card") tone(300, 520, 0.09, "triangle", 0.09);
-  else if(name === "alarm"){ tone(520, 520, 0.12, "square", 0.1); tone(392, 392, 0.15, "square", 0.1, 0.14); }
-  else if(name === "item"){ tone(990, null, 0.07, "sine", 0.09); tone(1318, null, 0.11, "sine", 0.09, 0.07); }
-  else if(name === "save"){ [392, 523.25, 659.25].forEach((f, i) => tone(f, null, 0.13, "triangle", 0.08, i * 0.08)); }
-  else if(name === "death") tone(320, 52, 0.75, "sawtooth", 0.13);
-  else if(name === "win"){ [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, null, 0.15, "triangle", 0.08, i * 0.1)); }
-  else if(name === "danger") tone(96, null, 0.1, "sine", 0.11);
-}
+let bgmEl = null, curTrack = -1;
+function bgm(){ if(!bgmEl) bgmEl = document.getElementById("bgm"); return bgmEl; }
 function musicStart(){
-  if(musicNodes || !S.settings.music) return;
-  const c = ac(); if(!c) return;
-  const g = c.createGain(); g.gain.value = 0.05;
-  const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 1300;
-  const oscs = PROG[0].pad.map(fr => { const o = c.createOscillator(); o.type = "triangle"; o.frequency.value = fr; o.connect(f); o.start(); return o; });
-  const oscs2 = PROG[0].pad.map(fr => { const o = c.createOscillator(); o.type = "sine"; o.frequency.value = fr * 2; const og = c.createGain(); og.gain.value = 0.3; o.connect(og); og.connect(f); o.start(); return o; });
-  oscs.push(...oscs2);
-  f.connect(g); g.connect(c.destination);
-  musicNodes = {oscs: oscs, g: g}; seqIx = 0;
-  musicTimer = setInterval(seqStep, 326);
+  if(!S || !S.settings || !S.settings.music) return;
+  const a = bgm(); if(!a) return;
+  const want = S.settings.track || 0;
+  if(curTrack !== want){ curTrack = want; a.src = TRACKS[want].file; a.load(); }
+  a.volume = 0.45;
+  const p = a.play(); if(p && p.catch) p.catch(function(){});
 }
 function musicStop(){
-  if(!musicNodes) return;
-  try{ musicNodes.oscs.forEach(o => o.stop()); musicNodes.g.disconnect(); }catch(e){}
-  musicNodes = null; if(musicTimer) clearInterval(musicTimer); musicTimer = null;
+  const a = bgm(); if(a) a.pause();
+}
+function cycleTrack(){
+  S.settings.track = ((S.settings.track || 0) + 1) % TRACKS.length;
+  const tn = document.getElementById("trackName");
+  if(tn) tn.textContent = TRACKS[S.settings.track].title;
+  if(S.settings.music){ curTrack = -1; musicStart(); }
+  sfx("click");
 }
 
 /* ---------- endings & report ---------- */
@@ -843,7 +806,7 @@ function setDiff(d){
 }
 document.addEventListener("pointerdown", () => {
   if(!S || !S.settings) return;
-  if(S.settings.music && !musicNodes) musicStart();
+  if(S.settings.music) musicStart();
   if(S.settings.sfx || S.settings.music) ac();
 }, true);
 document.addEventListener("DOMContentLoaded", () => {
@@ -871,6 +834,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if(key === "music"){ if(on){ musicStart(); } else musicStop(); }
   });
   $("resignBtn").onclick = resign;
+  const tp = $("trackPick"); if(tp) tp.onclick = cycleTrack;
+  const tn = $("trackName"); if(tn) tn.textContent = TRACKS[S.settings.track || 0].title;
   $("rateUp").onclick = () => { if(S.playing && !S.paused){ S.rate = clamp(S.rate + 0.25, 0, 20); sfx("click"); render(); } };
   $("rateDown").onclick = () => { if(S.playing && !S.paused){ S.rate = clamp(S.rate - 0.25, 0, 20); sfx("click"); render(); } };
   $("itemSlot").onclick = () => {

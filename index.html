@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fed Chair Tycoon</title>
 <link rel="icon" href="assets/icon.png">
-<link rel="stylesheet" href="styles.css?v=14">
+<link rel="stylesheet" href="styles.css?v=15">
 </head>
 <body>
 <div class="app">
@@ -44,11 +44,11 @@
     </header>
 
     <div class="prices hidden" id="prices">
-      <div class="pchip">GAS <b id="gasVal">$3.49</b></div>
-      <div class="pchip">EGGS <b id="eggsVal">$2.99</b></div>
-      <div class="pchip">JOBS <b id="jobsVal">4.2%</b></div>
-      <div class="pchip">LIVES <b id="livesVal">5</b></div>
-      <div class="pchip hidden" id="sbrChip" style="border-color:rgba(247,147,26,.65)">BTC RESERVE <b id="sbrVal">$0</b></div>
+      <div class="pchip"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="#16222E" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><rect x="4" y="3.5" width="11" height="17" rx="2" fill="#FF6B3D"/><rect x="6.5" y="6" width="6" height="5" rx="1" fill="#FFF3D6"/><path d="M15.5 8.5c3 .3 3.6 3 3.6 6v1.6"/><rect x="17.3" y="15.6" width="3.1" height="4.6" rx="1" fill="#FFD166"/></svg></span>GAS <b id="gasVal">$3.49</b></div>
+      <div class="pchip"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="#16222E" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><ellipse cx="9" cy="9.6" rx="3.3" ry="4.3" fill="#FFFDF4" transform="rotate(-10 9 9.6)"/><ellipse cx="15" cy="9.6" rx="3.3" ry="4.3" fill="#FFF3D6" transform="rotate(10 15 9.6)"/><path d="M3 13.2h18l-1.7 6a2 2 0 0 1-1.9 1.5H6.6a2 2 0 0 1-1.9-1.5z" fill="#F2B134"/><path d="M6.2 16.4h.01M10.2 16.4h.01M14.2 16.4h.01M18 16.4h.01" stroke-width="2.4"/></svg></span>EGGS <b id="eggsVal">$2.99</b></div>
+      <div class="pchip"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="#16222E" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M9 8V6.8A1.8 1.8 0 0 1 10.8 5h2.4A1.8 1.8 0 0 1 15 6.8V8"/><rect x="3.5" y="8" width="17" height="11" rx="2.2" fill="#B07A45"/><path d="M3.5 12.4h17" stroke-width="1.4"/><rect x="10.6" y="11.2" width="2.8" height="3.8" rx="0.8" fill="#FFD166"/></svg></span>JOBS <b id="jobsVal">4.2%</b></div>
+      <div class="pchip"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="#16222E" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M12 20.2S4 15.4 4 9.9C4 7.2 6 5 8.6 5c1.4 0 2.7.7 3.4 1.8C12.7 5.7 14 5 15.4 5 18 5 20 7.2 20 9.9c0 5.5-8 10.3-8 10.3z" fill="#FF5A5F"/><circle cx="8.5" cy="9.1" r="1.25" fill="#FFC2C6" stroke="none"/></svg></span>LIVES <b id="livesVal">5</b></div>
+      <div class="pchip hidden" id="sbrChip" style="border-color:rgba(247,147,26,.65)"><span class="picon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.8" fill="#F7931A" stroke="#16222E" stroke-width="1.6"/><path d="M9.3 6.7v10.6M9.3 7h3.1a2.5 2.5 0 0 1 0 5H9.3m0 .1h3.7a2.65 2.65 0 0 1 0 5.3H9.3M11.1 5.2v1.9M13.5 5.2v1.9M11.1 16.9v1.9M13.5 16.9v1.9" stroke="#FFF" stroke-width="1.55" fill="none" stroke-linecap="round"/></svg></span>BTC RESERVE <b id="sbrVal">$0</b></div>
     </div>
 
     <div class="sidebars hidden" id="sidebars">
@@ -169,6 +169,7 @@
       <div class="group">
         <div class="srow"><span class="ring" style="background:#FFD166"></span><span class="slabel">Sound FX</span><span class="sw on" data-set="sfx"></span></div>
         <div class="srow"><span class="ring" style="background:#7FB2FF"></span><span class="slabel">Music</span><span class="sw on" data-set="music"></span></div>
+        <div class="srow"><span class="ring" style="background:#8CE8B0"></span><span class="slabel">Tune</span><button class="trackpick" id="trackPick"><span id="trackName">Monkeys Spinning Monkeys</span> &#8250;</button></div>
         <div class="srow"><span class="ring" style="background:#FF9D8A"></span><span class="slabel">News ticker</span><span class="sw on" data-set="ticker"></span></div>
         <div class="srow"><span class="ring" style="background:#B79CFF"></span><span class="slabel">Haptics</span><span class="sw" data-set="haptics"></span></div>
       </div>
@@ -186,7 +187,7 @@
         <div class="fine" id="resignFine">Ends your current term. The term is scored and filed in the Hall of Chairs. There is no coming back from a signature.</div>
         <button class="btn-resign" id="resignBtn">SIGN &amp; RESIGN</button>
       </div>
-      <div class="foot">FED CHAIR TYCOON v0.1 &middot; A satire.<br>Any resemblance to a real central bank is entirely the point.</div>
+      <div class="foot">FED CHAIR TYCOON v0.1 &middot; A satire.<br>Any resemblance to a real central bank is entirely the point.<br>Music by Kevin MacLeod (incompetech.com), CC BY 4.0.</div>
     </section>
 
     <section class="screen hidden" id="screenDeath"></section>
@@ -262,6 +263,7 @@
   </aside>
 
 </div>
-<script src="game.js?v=14"></script>
+<script src="game.js?v=15"></script>
+<audio id="bgm" loop preload="auto" src="assets/music-monkeys.mp3"></audio>
 </body>
 </html>

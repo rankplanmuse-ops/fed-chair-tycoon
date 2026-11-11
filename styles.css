@@ -30,7 +30,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* ===== live prices painted on the street signs ===== */
 .scene-price{position:absolute;z-index:5;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.sp-gas{font-family:Baloo2,Nunito,sans-serif;justify-content:flex-start}font-weight:800;border-radius:6px;text-shadow:2px 2px 0 rgba(0,0,0,.85),-1px -1px 0 rgba(0,0,0,.85),1px -1px 0 rgba(0,0,0,.85),-1px 1px 0 rgba(0,0,0,.85);white-space:nowrap}
+.sp-gas{font-family:Baloo2,Nunito,sans-serif;justify-content:center;font-weight:800;border-radius:6px;text-shadow:2px 2px 0 rgba(0,0,0,.85),-1px -1px 0 rgba(0,0,0,.85),1px -1px 0 rgba(0,0,0,.85),-1px 1px 0 rgba(0,0,0,.85);white-space:nowrap}
 .sp-gas.frozen{filter:saturate(.35) brightness(.92)}
 .sp-gas span{display:block;text-align:center;white-space:nowrap}
 .sp-eggs{background:#FFFDF4;border-radius:3px;flex-direction:column;gap:0;transform:rotate(-3deg);box-shadow:0 1px 3px rgba(0,0,0,.3);line-height:1}
@@ -328,6 +328,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .walkers{position:absolute;inset:0;bottom:var(--dockh,268px);overflow:hidden;pointer-events:none;z-index:3}
 .walker{position:absolute;bottom:12px;left:0;height:12.5%;will-change:transform;animation:cross linear infinite}
 .walker img{height:100%;width:auto;display:block;animation:bob .46s ease-in-out infinite alternate}
+.walker.rev{animation-name:crossRev}
 .walker.rev img{transform:scaleX(-1)}
 .wk1{animation-duration:52s;animation-delay:-14s;height:12.5%}
 .wk2{animation-duration:34s;animation-delay:-26s;height:11%;bottom:7px}
@@ -336,6 +337,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .wk5{animation-duration:58s;animation-delay:-44s;height:12.5%}
 .wk6{animation-duration:66s;animation-delay:-30s;height:13%;bottom:9px}
 @keyframes cross{from{transform:translateX(-30vw)}to{transform:translateX(105vw)}}
+@keyframes crossRev{from{transform:translateX(105vw)}to{transform:translateX(-30vw)}}
 @keyframes bob{from{margin-top:0}to{margin-top:-3px}}
 @media (prefers-reduced-motion: reduce){ .walker{animation:none} .walker img{animation:none} }
 
@@ -361,6 +363,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .scene-bg{display:block}
   .scene{background-size:contain;background-position:50% 30px;background-repeat:no-repeat}
 }
+.scene-bg{display:block}
+.scene{background-size:contain;background-position:50% 30px;background-repeat:no-repeat}
 
 /* ===== Difficulty: three circles ===== */
 .diffpick{display:flex;align-items:center;gap:10px;justify-content:center;padding:8px 0}
@@ -416,4 +420,34 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 /* The gas sign flips like a split-flap board when the price moves */
 #sceneGas{transform-origin:50% 50%}
 #sceneGas.flip{animation:signflip .45s ease}
+#sceneEggs.flip{animation:signflip .45s ease}
 @keyframes signflip{0%{transform:perspective(320px) rotateX(0deg)}38%{transform:perspective(320px) rotateX(86deg);filter:brightness(1.5)}100%{transform:perspective(320px) rotateX(0deg)}}
+
+/* HUD never overflows: the debt figure ellipsizes before the buttons get pushed out */
+.hud-debt .v{overflow:hidden;text-overflow:ellipsis}
+@media (max-width:430px){
+  .hud{gap:6px;padding:12px 10px 0}
+  .hud-month{padding:5px 9px;font-size:11px}
+  .hud-btn{width:34px;height:34px;font-size:15px}
+  .hud-debt .v{font-size:16.5px}
+}
+/* Chip icons */
+.pchip{display:inline-flex;align-items:center;gap:5px}
+.picon{display:inline-flex;flex:none}
+.picon svg{width:15px;height:15px;display:block}
+.trackpick{margin-left:auto;background:#1B2A44;color:#DCE8FF;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 13px;font-family:Nunito,sans-serif;font-weight:800;font-size:12.5px;cursor:pointer}
+
+/* Bigger rate buttons: the one control you actually play */
+.tri{width:68px;height:42px;font-size:19px;border-radius:11px}
+.tri-stack{gap:7px}
+/* Chips carry icons now: keep the row inside narrow screens */
+.prices{flex-wrap:nowrap}
+.pchip{white-space:nowrap}
+@media (max-width:430px){
+  .prices{left:10px;right:8px;gap:5px}
+  .pchip{padding:4px 8px;font-size:10.5px;gap:4px}
+  .picon svg{width:13px;height:13px}
+}
+
+/* The plate sits BETWEEN the GDP/CPI bars: nothing on the street gets covered */
+.scene{left:52px;right:52px}
