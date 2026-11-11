@@ -160,11 +160,11 @@ function sceneFor(){
 /* rects are 0-1000 normalised boxes around the prices baked into each plate;
    layout maps them through the same cover/50% 92% maths the CSS background uses */
 const SCENE_PRICES = {
-  normal:    {iw:1120, ih:2240, gas:{r:[2,548,138,594], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[638,785,737,832], tag:[736,788,803,819]}},
-  inflation: {iw:1120, ih:2240, gas:{r:[7,556,192,632], bg:"#C9330F", fg:"#FF5A3C"}, eggs:{r:[643,725,719,766], tag:null}},
-  recession: {iw:1184, ih:2096, gas:{r:[0,496,135,553], bg:"#6B1F16", fg:"#D8C58F"}, eggs:null},
-  disaster:  {iw:1184, ih:2096, gas:{r:[38,505,190,565], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[688,701,743,730], tag:null}},
-  war:       {iw:1120, ih:2240, gas:{r:[15,562,182,603], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[818,778,904,816], tag:[900,782,956,810]}}
+  normal:    {iw:1120, ih:2240, gas:{r:[80,583,265,647], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[516,777,644,823], tag:[637,782,707,812]}},
+  inflation: {iw:1120, ih:2240, gas:{r:[143,639,352,698], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[668,751,751,789], tag:null}},
+  recession: {iw:1184, ih:2096, gas:{r:[0,509,188,583], bg:"#6B1F16", fg:"#D8C58F"}, eggs:null},
+  disaster:  {iw:1184, ih:2096, gas:{r:[36,520,196,584], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[746,734,812,772], tag:null}},
+  war:       {iw:1120, ih:2240, gas:{r:[18,590,215,633], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[775,782,921,832], tag:[909,785,981,819]}}
 };
 function priceStr(v){
   if(v >= 100) return String(Math.round(v));
