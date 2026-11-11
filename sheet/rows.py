@@ -27,12 +27,12 @@ add("Loading screen","TAP TO SKIP","Loading screen, bottom","Hint that the loadi
 # ---------- Briefing ----------
 add("Briefing","THE BRIEFING","Briefing card, ribbon over the street artwork","Card header","Gold ribbon banner")
 add("Briefing","The job is yours","Briefing card, headline","Card title","Large Baloo 2, white")
-add("Briefing","The job was designed in secret. November 1910, Jekyll Island, Georgia: seven men checked into a hunting club under first names only: a senator, Morgan men, a Rockefeller bank president, a Treasury official. The cover story was duck hunting. Nine days later they had drafted a central bank. You are what they built. Hold inflation near 2%, keep the street calm, and survive 48 months.","Briefing card, body paragraph","Story intro and the win condition","Body text; dates and key phrases in bold")
+add("Briefing","In 1910, seven men met in secret on Jekyll Island and designed a central bank. You are what they built. Keep inflation near 2%, keep the street calm, and survive 48 months.","Briefing card, body paragraph","Story intro and the win condition","Body text; dates and key phrases in bold")
 add("Briefing","The needle. Green is calm. Blue is recession, red is inflation. Peg either end and your term ends.","Briefing card, rule row 1","Explains the gauge","Rule row with a green dot icon")
 add("Briefing","The lever. One interest rate, moved in 0.25 steps. It works slowly, like everything in this building.","Briefing card, rule row 2","Explains the one control","Rule row with up/down triangle icon")
 add("Briefing","Items. Washington speak, single use: speeches, blame, emergency buttons. They reset the street, briefly.","Briefing card, rule row 3","Explains crisis items","Rule row with a lightning icon")
-add("Briefing","The trap. Cheap money builds projects that only look good at cheap rates. They show up in GDP first. They bust later, when you hike, and the bust was built in the boom.","Briefing card, rule row 4","Explains the malinvestment and bust mechanic","Rule row with a temple icon")
-add("Briefing","Five lives. When the needle pegs, an emergency meeting pulls you back from the edge. You get five per term. The sixth crisis is final.","Briefing card, rule row 5","Explains the 5 emergency meetings","Rule row with a heart icon")
+add("Briefing","The trap. Cheap money builds projects that only work at cheap rates. They flatter GDP first, then bust when you hike.","Briefing card, rule row 4","Explains the malinvestment and bust mechanic","Rule row with a temple icon")
+add("Briefing","Five lives. When the needle pegs, an emergency meeting saves you. Five per term. The sixth crisis is final.","Briefing card, rule row 5","Explains the 5 emergency meetings","Rule row with a heart icon")
 add("Briefing","TAKE THE LEVER","Briefing card, bottom button","Starts the term","Large primary button")
 
 # ---------- HUD ----------
@@ -229,7 +229,7 @@ add("Term Report","Full term / Ousted - inflation / Ousted - recession / Resigne
 add("Term Report","YOUR TERM, MONTH BY MONTH","Report card, strip label","Labels the 48-square needle history strip (blue = recession months, red = inflation, green = calm, yellow = warm)","Small caps over a row of coloured squares")
 add("Term Report","SHARE YOUR TERM","Share box, title","Share section header","Small caps")
 add("Term Report","My term as Fed Chair: X/48 months. Peak inflation X%, debt +$X T, grade X. Ended: (ending). The street remembers.","Share box preview and the shared post itself","The share text (system share sheet, X post, or clipboard); all values are live","Monospace-ish preview box above the share buttons")
-add("Term Report","Share / X / (copy icon)","Share box, buttons","Share natively, post to X, or copy the text","Three buttons")
+add("Term Report","Share this with friends / X / (copy icon)","Share box, buttons","Share natively, post to X, or copy the text","One wide main button; the X and copy buttons are narrow")
 add("Term Report","NEW TERM / HALL OF CHAIRS","Report screen, bottom buttons","Start again, or view the leaderboard","Two buttons")
 
 # ---------- Hall of Chairs ----------
@@ -275,8 +275,8 @@ add("Toasts","COPY FAILED","Toast, over the street","Clipboard write failed",TO_
 
 # ---------- Scene artwork and live overlays ----------
 add("Scene artwork","CENTRAL BANK","Baked into all 5 street plates, on the bank pediment, top centre","Names the bank on the hill","Dark blue serif caps on the stone pediment")
-add("Scene artwork (live overlays)","(live gas price, e.g. 3.49)","Painted over the gas station sign board (left side) in every plate","THE live gas price in the artwork: changes in steps every 3 seconds with a split-flap flip; freezes solid under price controls","Baloo 2 chunky digits matching each plate's sign colours (yellow on orange-red for normal and war, red tones for inflation and disaster, pale tan for recession), black outline")
-add("Scene artwork (live overlays)","EGGS + (live price)","Painted over the market window card (right side) in normal, inflation, disaster and war plates","THE live eggs price in the artwork: steps every 3 seconds and flips on change. No overlay in the recession plate (the market is closed)","White paper card look: EGGS in black caps over a bold price, tilted like the baked card")
+add("Scene artwork (live overlays)","(live gas price, e.g. 3.49)","Painted over the gas station sign board (left side) in every plate","THE live gas price in the artwork: changes in steps every 3 seconds; freezes solid under price controls","Baloo 2 chunky digits matching each plate's sign colours (yellow on orange-red for normal and war, red tones for inflation and disaster, pale tan for recession), black outline")
+add("Scene artwork (live overlays)","EGGS + (live price)","Painted over the market window card (right side) in normal, inflation, disaster and war plates","THE live eggs price in the artwork: steps every 3 seconds. No overlay in the recession plate (the market is closed)","White paper card look: EGGS in black caps over a bold price, tilted like the baked card")
 add("Scene artwork (live overlays)","(live price)","Painted over the small yellow price tag beside the window card (normal and war plates)","Second live eggs price, on the tag","Bold price on a yellow tag")
 add("Scene artwork (baked)","GA / GAS","Gas station sign, left, all plates (cut by the frame edge in normal and recession)","Sign lettering; the live price board sits under it","White chunky letters on an orange-red board")
 add("Scene artwork (baked)","3.4 (normal) / 7.89 (inflation) / 2.8 (recession) / 999 (disaster) / 18.4 (war)","Baked into the sign price boards","The plates' original printed prices; fully covered by the live price overlay in play","Chunky digits with black outline")
