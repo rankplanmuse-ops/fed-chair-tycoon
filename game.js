@@ -71,10 +71,20 @@ function ambientHeadline(){
   if(S.rate >= 7) pool.push(["Bond Watch", "Borrowers are screaming. Bondholders are not."]);
   if(S.rate <= 3) pool.push(["Bond Watch", "Cheap money is back. So are the wild ideas."]);
   if(g >= 6) pool.push(["Main Street Post", "Gas at $" + g.toFixed(2) + ". Drivers are doing the maths out loud."]);
+  if(S.inf >= 2.5) pool.push(["Main Street Post", "Rents renewed this month. Nobody renewed cheap."]);
+  if(S.priceLevel > 1.05) pool.push(["Main Street Post", "Coffee is up again. The cafe blames everything."]);
+  if(S.inf >= 3.5) pool.push(["Main Street Post", "Used cars cost more than new ones did. Somehow."]);
+  if(S.priceLevel > 1.12) pool.push(["Main Street Post", "Bread costs what cake used to. The street noticed."]);
   pool.push(["Hill Insider", "Senators ask, again, who exactly is in charge of prices."]);
+  pool.push(["Hill Insider", "The Hill blames the chair. The chair blames the data."]);
   pool.push(["Main Street Post", "The street is calm. The street is watching."]);
+  pool.push(["Main Street Post", "The bakery raised prices a little and apologised a lot."]);
+  pool.push(["Bond Watch", "Bond traders nap. Yields drift. Nobody panics, yet."]);
   pool.push(["Savers\u2019 Gazette", "Opinion: the printer is not a policy.", {oped:true}]);
-  const pick = pool[Math.floor(Math.random()*pool.length)];
+  const recent = S.wire.slice(0, 8).map(w => w.head);
+  const fresh = pool.filter(p => recent.indexOf(p[1]) === -1);
+  const pickFrom = fresh.length ? fresh : pool;
+  const pick = pickFrom[Math.floor(Math.random()*pickFrom.length)];
   pushWire(pick[0], pick[1], pick[2] || {});
 }
 
@@ -258,8 +268,8 @@ function loop(ts){
 function monthTick(){
   const D = DIFFS[S.diff];
   S.week = 1 + Math.floor(Math.random()*4);
-  const target = 2.2 + (4.6 - S.rate) * 0.8 + (S.war ? 0.9 : 0);
-  S.inf += (target - S.inf) * 0.34 * D.drift + rnd(-0.26, 0.26) * D.noise + S.shockInf;
+  const target = 2.2 + (4.6 - S.rate) * 1.15 + (S.war ? 0.9 : 0);
+  S.inf += (target - S.inf) * 0.40 * D.drift + rnd(-0.26, 0.26) * D.noise + S.shockInf;
   S.shockInf *= 0.45;
   S.inf = clamp(S.inf, -1.5, 45);
   const uT = 4.3 + (S.rate - 4.7) * 0.75;
