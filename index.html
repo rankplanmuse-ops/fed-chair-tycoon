@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fed Chair Tycoon</title>
 <link rel="icon" href="assets/icon.png">
-<link rel="stylesheet" href="styles.css?v=10">
+<link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
 <div class="app">
@@ -48,6 +48,7 @@
       <div class="pchip">EGGS <b id="eggsVal">$2.99</b></div>
       <div class="pchip">JOBS <b id="jobsVal">4.2%</b></div>
       <div class="pchip">LIVES <b id="livesVal">5</b></div>
+      <div class="pchip hidden" id="sbrChip" style="border-color:rgba(247,147,26,.65)">BTC RESERVE <b id="sbrVal">$0</b></div>
     </div>
 
     <div class="sidebars hidden" id="sidebars">
@@ -65,7 +66,7 @@
 
     <section class="screen" id="screenTitle">
       <div class="title-hero">
-        <div class="coin">$</div>
+        <div class="coin title-coin" id="titleCoin"><div class="coin-inner"><div class="coin-face coin-front">$</div><div class="coin-face coin-back"><svg viewBox="0 0 64 64" class="btc-svg"><circle cx="32" cy="32" r="30" fill="#F7931A"/><text x="32" y="45" font-size="38" font-weight="700" fill="#ffffff" text-anchor="middle" transform="rotate(12 32 32)" font-family="Arial,Helvetica,sans-serif">&#8383;</text></svg></div></div></div>
         <h1>FED CHAIR<br>TYCOON</h1>
         <div class="tagline">One lever. Two ways to fall.</div>
       </div>
@@ -87,7 +88,7 @@
 
     <section class="screen hidden" id="screenLoad">
       <div class="load-wrap">
-        <div class="coin load-coin">$</div>
+        <div class="coin load-coin" id="loadCoin"><div class="coin-inner"><div class="coin-face coin-front">$</div><div class="coin-face coin-back"><svg viewBox="0 0 64 64" class="btc-svg"><circle cx="32" cy="32" r="30" fill="#F7931A"/><text x="32" y="45" font-size="38" font-weight="700" fill="#ffffff" text-anchor="middle" transform="rotate(12 32 32)" font-family="Arial,Helvetica,sans-serif">&#8383;</text></svg></div></div></div>
         <div class="load-line" id="loadLine">PRINTING MONEY</div>
         <div class="load-bar"><div class="load-fill" id="loadFill"></div></div>
         <div class="load-skip">TAP TO SKIP</div>
@@ -205,6 +206,7 @@
           <div class="cell"><div class="k">HOW IT ENDED</div><div class="v" id="repEnd">Resigned</div></div>
           <div class="cell"><div class="k">EMERGENCY MEETINGS</div><div class="v" id="repMeet">0</div></div>
           <div class="cell"><div class="k">LIVES LEFT</div><div class="v" id="repLives">5</div></div>
+          <div class="cell"><div class="k">BITCOIN RESERVE</div><div class="v" id="repSbr">None</div></div>
         </div>
         <div class="strip"><div class="k">YOUR TERM, MONTH BY MONTH</div><div class="squares" id="squares"></div></div>
       </div>
@@ -260,6 +262,6 @@
   </aside>
 
 </div>
-<script src="game.js?v=10"></script>
+<script src="game.js?v=11"></script>
 </body>
 </html>

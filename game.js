@@ -39,7 +39,7 @@ function freshState(){
     screen:"title", playing:false, paused:false, ended:false,
     month:1, week:1, inf:2.4, rate:5.0, u:4.2, debt:DEBT0,
     priceLevel:1, needle:0.5, item:ITEMS[0], itemIn:0,
-    history:[], wire:[], unread:0, ladder:0, dangerRun:0, lives:5, meetings:0, scarHot:0, scarCold:0,
+    history:[], wire:[], unread:0, ladder:0, dangerRun:0, lives:5, meetings:0, scarHot:0, scarCold:0, sbr:false, sbrDone:false, btcPrice:97400, btcHeld:0,
     war:false, warLeft:0, gasMult:1, gasFrozen:false, freezeLeft:0,
     jekyllDone:false, scandalDone:false, bailoutDone:false, corpDone:false,
     controlsLeft:0, lieLeft:0, shockInf:0, lastEvent:-9, warDone:false,
@@ -230,6 +230,8 @@ function render(){
   $("eggsVal").textContent = "$" + eggsNow().toFixed(2);
   $("jobsVal").textContent = S.u.toFixed(1) + "%";
   $("livesVal").textContent = S.lives;
+  $("sbrChip").classList.toggle("hidden", !S.sbr);
+  if(S.sbr) $("sbrVal").textContent = tFmt(S.btcHeld * S.btcPrice);
   $("itemName").textContent = S.item ? S.item.name : "EMPTY";
   $("itemTap").textContent = S.item ? "TAP TO USE" : "";
   $("itemSlot").classList.toggle("has-item", !!S.item);
@@ -264,8 +266,9 @@ function toast(msg){
 }
 
 /* ---------- overlay cards ---------- */
-function showCard(tag, tagClass, title, body, primary, secondary, hint){
+function showCard(tag, tagClass, title, body, primary, secondary, hint, onPrimary, onSecondary){
   S.paused = true; sfx("card");
+  S.cardAction = onPrimary || null; S.cardSecondary = onSecondary || null;
   $("overlayCard").innerHTML =
     '<span class="tagchip ' + tagClass + '">' + tag + "</span>" +
     "<h2>" + title + "</h2>" +
@@ -276,8 +279,8 @@ function showCard(tag, tagClass, title, body, primary, secondary, hint){
     (secondary ? '<button class="btn-dim" id="cardSecondary">' + secondary + "</button>" : "") +
     (hint ? '<div class="hintline">' + hint + "</div>" : "");
   $("overlay").classList.remove("hidden");
-  $("cardPrimary").onclick = () => { hideCard(); };
-  if(secondary) $("cardSecondary").onclick = () => { hideCard(); openSheet("screenWire"); };
+  $("cardPrimary").onclick = () => { const f = S.cardAction; S.cardAction = null; S.cardSecondary = null; hideCard(); if(f) f(); };
+  if(secondary) $("cardSecondary").onclick = () => { const f = S.cardSecondary; S.cardAction = null; S.cardSecondary = null; hideCard(); if(f) f(); else openSheet("screenWire"); };
 }
 function hideCard(){ $("overlay").classList.add("hidden"); if(S.playing && !S.ended) S.paused = false; }
 
@@ -297,6 +300,15 @@ function warningCard(side){ sfx("alarm");
 
 /* ---------- scenario events ---------- */
 const EVENTS = [
+  {id:"sbr", when:() => S.month >= 12 && !S.sbrDone && (S.debt - DEBT0) > 1.2e12, run(){
+    S.sbrDone = true;
+    pushWire("Capitol Ledger", "A debt relief measure lands on the desk: stack bitcoin, cap the bleeding.", {brk:true});
+    showCard("SCENARIO", "tag-event", "STRATEGIC BITCOIN RESERVE",
+      "The debt is compounding faster than the economy. The proposal: take the seized stockpile, buy a million bitcoin, and let the hardest money on earth eat the softest debt ever printed. Signing puts $40B on the ticker today. After that the reserve rides the market, and every gain comes straight off the national debt.",
+      "SIGN IT. STACK SATS", "KEEP PRINTING PAPER", "Debt relief, the orange way.",
+      () => { S.sbr = true; S.btcHeld = 1000000; S.debt += 40e9; sfx("item"); toast("RESERVE ESTABLISHED: 1,000,000 BTC"); render(); },
+      () => { pushWire("Capitol Ledger", "The reserve dies in committee. The printer keeps the pen.", {}); });
+  }},
   {id:"war", when:() => S.month >= 8 && !S.warDone, run(){
     S.war = true; S.warLeft = 6; S.warDone = true; S.gasMult = 2.6; S.shockInf += 2.0;
     pushWire("Main Street Post", "War breaks out overseas. Gas spikes overnight.", {brk:true});
@@ -500,6 +512,15 @@ function monthTick(){
   ambientHeadline();
   if(Math.random() < 0.4) ambientHeadline();
   S.month++;
+  if(S.sbr && S.btcHeld > 0){
+    const before = S.btcHeld * S.btcPrice;
+    const r = 0.03 + rnd(-0.085, 0.095) + (S.inf - 2) * 0.007;
+    S.btcPrice = Math.max(8000, S.btcPrice * (1 + r));
+    const gain = S.btcHeld * S.btcPrice - before;
+    S.debt = Math.max(DEBT0 * 0.97, S.debt - gain);
+    if(r > 0.14) pushWire("Orange Sheet", "The reserve is up " + Math.round(r * 100) + "% this month. The debt clock noticed.", {});
+    else if(r < -0.13) pushWire("Orange Sheet", "The reserve is down " + Math.abs(Math.round(r * 100)) + "% this month. The stackers send their regards.", {});
+  }
   if((S.needle >= 0.985 && S.inf >= 7.5) || S.inf >= 18){ if(!emergencySave("hot")) return endTerm("inflation"); }
   if((S.needle <= 0.015 && S.u >= 8.5) || S.u >= 11.5){ if(!emergencySave("cold")) return endTerm("recession"); }
   if(S.month > 48) return endTerm("survived");
@@ -642,6 +663,7 @@ function showReport(){
   $("repEnd").textContent = endLabel();
   $("repMeet").textContent = S.meetings;
   $("repLives").textContent = S.lives;
+  $("repSbr").textContent = S.sbr ? tFmt(S.btcHeld * S.btcPrice) : "None";
   $("squares").innerHTML = S.history.map(n => {
     const d = Math.abs(n - 0.5);
     const c = n < 0.2 ? "#4E7BD9" : n > 0.8 ? "#D94F3E" : d < 0.18 ? "#39C96B" : "#E8C93C";
@@ -692,15 +714,17 @@ let loadMode = "brief";
 function startLoad(mode){
   loadMode = mode || "brief";
   showOnly("screenLoad");
+  $("loadCoin").classList.remove("flipped");
   let i = 0;
   const step = () => {
     if(i >= LOAD_LINES.length){ finishLoad(); return; }
     const el = $("loadLine");
+    if(i === 8) $("loadCoin").classList.add("flipped");
     el.textContent = LOAD_LINES[i];
     el.classList.remove("linein"); void el.offsetWidth; el.classList.add("linein");
     $("loadFill").style.width = ((i + 1) / LOAD_LINES.length * 100) + "%";
     i++;
-    loadTimer = setTimeout(step, 560);
+    loadTimer = setTimeout(step, 1050);
   };
   step();
 }
@@ -758,6 +782,7 @@ function setDiff(d){
     el.querySelectorAll(".dc").forEach(x => x.classList.toggle("on", DIFFLVL[x.dataset.diff] <= DIFFLVL[d]));
   });
 }
+document.addEventListener("pointerdown", () => { if(S && S.settings && (S.settings.sfx || S.settings.music)) ac(); }, true);
 document.addEventListener("DOMContentLoaded", () => {
   S = freshState();
   $("sceneA").style.backgroundImage = "url(assets/scene-normal.webp)";
@@ -779,7 +804,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const key = sw.dataset.set, on = sw.classList.contains("on");
     S.settings[key] = on;
     if(key === "ticker") $("prices").classList.toggle("hidden", !on || !S.playing);
-    if(key === "music"){ if(on && S.playing) musicStart(); else musicStop(); }
+    if(key === "sfx" && on) setTimeout(() => sfx("save"), 30);
+    if(key === "music"){ if(on){ musicStart(); } else musicStop(); }
   });
   $("resignBtn").onclick = resign;
   $("rateUp").onclick = () => { if(S.playing && !S.paused){ S.rate = clamp(S.rate + 0.25, 0, 20); sfx("click"); render(); } };
