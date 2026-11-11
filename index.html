@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fed Chair Tycoon</title>
+<link rel="icon" href="assets/icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <aside class="rail rail-left">
+    <div class="rail-mast">The Daily Ledger</div>
+    <div class="rail-date" id="railDate">TERM MONTH 1 &middot; WEEK 1 &middot; WASHINGTON</div>
+    <div class="rail-rule"></div>
+    <div class="rail-wire" id="railWire"></div>
+    <div class="rail-foot">ALL THE NEWS THE NEEDLE MAKES</div>
+  </aside>
+
+  <main class="stage" id="stage">
+    <div class="scene" id="sceneA"></div>
+    <div class="scene" id="sceneB"></div>
+    <div class="scrim-top"></div>
+
+    <header class="hud">
+      <div class="hud-debt"><span class="k">DEBT</span><span class="v" id="debtVal">$38,412,905,221,114</span></div>
+      <div class="hud-month" id="monthVal">MONTH 1/48</div>
+      <button class="hud-btn" id="wireBtn" title="News wire">&#128240;<span class="badge hidden" id="wireBadge">0</span></button>
+      <button class="hud-btn" id="settingsBtn" title="Settings">&#9881;</button>
+    </header>
+
+    <div class="prices hidden" id="prices">
+      <div class="pchip">GAS <b id="gasVal">$3.49</b></div>
+      <div class="pchip">EGGS <b id="eggsVal">$2.99</b></div>
+      <div class="pchip">JOBS <b id="jobsVal">4.2%</b></div>
+    </div>
+
+    <section class="screen" id="screenTitle">
+      <div class="title-hero">
+        <div class="coin">$</div>
+        <h1>FED CHAIR<br>TYCOON</h1>
+        <div class="tagline">One lever. Two ways to fall.</div>
+      </div>
+      <div class="title-menu">
+        <button class="btn-start" id="startBtn">START YOUR TERM</button>
+        <div class="seg" id="diffSeg">
+          <div data-diff="intern">INTERN</div>
+          <div data-diff="chair" class="on">CHAIR</div>
+          <div data-diff="legend">LEGEND</div>
+        </div>
+        <div class="row2">
+          <button class="btn-ghost" id="hallBtn">HALL OF CHAIRS</button>
+          <button class="btn-ghost" id="howBtn">HOW TO PLAY</button>
+        </div>
+        <div class="foot">A satire in 48 months &middot; v0.1</div>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="screenBrief">
+      <div class="card brief-card">
+        <div class="brief-art"><div class="ribbon">THE BRIEFING</div></div>
+        <div class="card-body">
+          <h2>The job is yours</h2>
+          <p class="txt">Parliament could not agree on a plan, so it handed the lever to someone unelected: <b>you</b>. Hold inflation near 2%, keep the street calm, and <b>survive 48 months</b>.</p>
+          <div class="rules">
+            <div class="rule"><div class="ic" style="background:rgba(62,207,110,.16);color:#3ECF6E">&#9679;</div><div class="rt"><b>The needle.</b> Green is calm. Blue is recession, red is inflation. Peg either end and your term ends.</div></div>
+            <div class="rule"><div class="ic" style="background:rgba(127,178,255,.16);color:#7FB2FF">&#9650;&#9660;</div><div class="rt"><b>The lever.</b> One interest rate, moved in 0.25 steps. It works slowly, like everything in this building.</div></div>
+            <div class="rule"><div class="ic" style="background:rgba(255,209,102,.16);color:#FFD166">&#9889;</div><div class="rt"><b>Items.</b> Washington speak, single use: speeches, blame, emergency buttons. They reset the street, briefly.</div></div>
+          </div>
+          <button class="btn-primary" id="takeLeverBtn">TAKE THE LEVER</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="dock hidden" id="dock">
+      <div class="dock-top">
+        <div class="inf-box"><div class="k">INFLATION</div><div class="v" id="infVal">2.4%</div></div>
+        <div class="gauge-box">
+          <div class="gbar"><div class="gmark" id="gmark"></div></div>
+          <div class="glabels"><span style="color:#7FB2FF">RECESSION</span><span style="color:#FF8A75">INFLATION</span></div>
+        </div>
+      </div>
+      <div class="rate-row">
+        <button class="rate-btn" id="rateDown" aria-label="Cut rate">&#9660;</button>
+        <div class="rate-mid"><div class="k">INTEREST RATE</div><div class="v" id="rateVal">5.00%</div></div>
+        <button class="rate-btn" id="rateUp" aria-label="Raise rate">&#9650;</button>
+      </div>
+      <button class="item-slot" id="itemSlot">
+        <span class="item-k">ITEM</span>
+        <span class="item-name" id="itemName">EMPTY CRATE</span>
+        <span class="item-tap" id="itemTap"></span>
+      </button>
+    </div>
+
+    <div class="overlay hidden" id="overlay"><div class="card" id="overlayCard"></div></div>
+
+    <section class="screen sheet hidden" id="screenWire">
+      <div class="sheet-head">
+        <button class="iconbtn" data-close>&#8249;</button>
+        <div class="ledger-name">The Daily Ledger</div>
+        <div class="live-dot"><i></i>LIVE</div>
+      </div>
+      <div class="ledger-date" id="ledgerDate">TERM MONTH 1 &middot; WEEK 1 &middot; WASHINGTON</div>
+      <div class="rule2"></div>
+      <div class="wire-list" id="wireList"></div>
+      <div class="sheet-foot"><span id="unreadTxt">0 UNREAD</span><button class="btn-small" id="markReadBtn">MARK ALL READ</button></div>
+    </section>
+
+    <section class="screen sheet hidden" id="screenSettings">
+      <div class="sheet-head">
+        <button class="iconbtn" data-close>&#8249;</button>
+        <div class="sheet-title">Settings</div>
+      </div>
+      <div class="group-label">GAMEPLAY</div>
+      <div class="group">
+        <div class="srow"><span class="ring" style="background:#FFD166"></span><span class="slabel">Sound FX</span><span class="sw on" data-set="sfx"></span></div>
+        <div class="srow"><span class="ring" style="background:#7FB2FF"></span><span class="slabel">Music</span><span class="sw on" data-set="music"></span></div>
+        <div class="srow"><span class="ring" style="background:#FF9D8A"></span><span class="slabel">News ticker</span><span class="sw on" data-set="ticker"></span></div>
+        <div class="srow"><span class="ring" style="background:#B79CFF"></span><span class="slabel">Haptics</span><span class="sw" data-set="haptics"></span></div>
+      </div>
+      <div class="group-label">DIFFICULTY</div>
+      <div class="seg" id="diffSeg2">
+        <div data-diff="intern">INTERN</div>
+        <div data-diff="chair" class="on">CHAIR</div>
+        <div data-diff="legend">LEGEND</div>
+      </div>
+      <div class="letter">
+        <div class="stamp-seal">FED</div>
+        <h3>END THIS TERM EARLY</h3>
+        <div class="dear">Dear Mr. President,<br>I hereby tender my resignation as Chair, effective immediately.</div>
+        <div class="sig">&mdash; The Chair</div>
+        <div class="fine" id="resignFine">Ends your current term. The term is scored and filed in the Hall of Chairs. There is no coming back from a signature.</div>
+        <button class="btn-resign" id="resignBtn">SIGN &amp; RESIGN</button>
+      </div>
+      <div class="foot">FED CHAIR TYCOON v0.1 &middot; A satire.<br>Any resemblance to a real central bank is entirely the point.</div>
+    </section>
+
+    <section class="screen hidden" id="screenDeath"></section>
+
+    <section class="screen hidden" id="screenReport">
+      <div class="report-card">
+        <div class="rhead">
+          <div class="seal">$</div>
+          <div class="rtitle"><div class="org">BOARD OF GOVERNORS &middot; OFFICIAL</div><div class="doc">Term Report</div></div>
+          <div class="grade"><div class="g" id="gradeVal">C+</div><div class="gl">GRADE</div></div>
+        </div>
+        <div class="verdict" id="verdictVal"></div>
+        <div class="rgrid">
+          <div class="cell"><div class="k">MONTHS SERVED</div><div class="v" id="repMonths">31 / 48</div></div>
+          <div class="cell"><div class="k">PEAK INFLATION</div><div class="v" id="repPeak">9.8%</div></div>
+          <div class="cell"><div class="k">DEBT ADDED</div><div class="v" id="repDebt">+$9.22T</div></div>
+          <div class="cell"><div class="k">HOW IT ENDED</div><div class="v" id="repEnd">Resigned</div></div>
+        </div>
+        <div class="strip"><div class="k">YOUR TERM, MONTH BY MONTH</div><div class="squares" id="squares"></div></div>
+      </div>
+      <div class="share-box">
+        <div class="share-title">SHARE YOUR TERM</div>
+        <div class="post-preview" id="postPreview"></div>
+        <div class="share-row">
+          <button class="btn-share" id="shareBtn">Share</button>
+          <button class="btn-share-x" id="shareXBtn">X</button>
+          <button class="btn-share-x" id="copyBtn" title="Copy result">&#10697;</button>
+        </div>
+        <div class="share-row">
+          <button class="btn-newterm" id="newTermBtn">NEW TERM</button>
+          <button class="btn-hall2" id="hallBtn2">HALL OF CHAIRS</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen sheet hidden" id="screenHall">
+      <div class="sheet-head">
+        <button class="iconbtn" data-close>&#8249;</button>
+        <div class="sheet-title">Hall of Chairs</div>
+      </div>
+      <div class="seg" id="hallSeg"><div class="on">ALL TIME</div><div>THIS WEEK</div><div>FRIENDS</div></div>
+      <div class="hall-list" id="hallList"></div>
+    </section>
+
+    <div class="toast hidden" id="toast"></div>
+  </main>
+
+  <aside class="rail rail-right">
+    <div class="panel">
+      <div class="panel-title">YOUR TERM</div>
+      <div class="stat-grid">
+        <div class="stat"><div class="k">MONTH</div><div class="v" id="stMonth">-</div></div>
+        <div class="stat"><div class="k">INFLATION</div><div class="v" id="stInf">-</div></div>
+        <div class="stat"><div class="k">RATE</div><div class="v" id="stRate">-</div></div>
+        <div class="stat"><div class="k">DEBT ADDED</div><div class="v" id="stDebt">-</div></div>
+      </div>
+      <div class="needle-mini">
+        <div class="gbar"><div class="gmark" id="gmark2"></div></div>
+        <div class="glabels"><span style="color:#7FB2FF">RECESSION</span><span style="color:#FF8A75">INFLATION</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">HALL OF CHAIRS &middot; TOP 5</div>
+      <div class="mini-hall" id="miniHall"></div>
+    </div>
+    <div class="panel panel-tip">
+      <div class="panel-title">THE JOB</div>
+      <p>Keep the needle in the green for 48 months. Rates bite with a lag, the debt ticker never stops, and both ends of the street are always angry about something.</p>
+    </div>
+  </aside>
+
+</div>
+<script src="game.js"></script>
+</body>
+</html>
