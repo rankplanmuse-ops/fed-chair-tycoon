@@ -166,12 +166,12 @@ function warningCard(side){
     pushWire("Savers\u2019 Gazette", "Pensions are shrinking. The retirees are marching on the bank.", {brk:true, warn:true});
     showCard("WARNING &middot; SAVERS\u2019 GAZETTE", "tag-warn", "Savers are marching",
       "Prices are eating pensions alive. If the needle pegs at INFLATION, the crowd stops asking and starts choosing.",
-      "BACK TO THE LEVER", "OPEN THE WIRE", "Warnings arrive before the needle pegs. Usually.");
+      "BACK TO PRINTING", "OPEN THE WIRE", "Warnings arrive before the needle pegs. Usually.");
   } else {
     pushWire("Union Daily", "Dole queues round the block. The street wants work, not speeches.", {brk:true, warn:true});
     showCard("WARNING &middot; UNION DAILY", "tag-warn", "The queues are growing",
       "Rates this high are strangling the street. If the needle pegs at RECESSION, the President finds a new chair.",
-      "BACK TO THE LEVER", "OPEN THE WIRE", "Warnings arrive before the needle pegs. Usually.");
+      "PRINT OUR WAY OUT", "OPEN THE WIRE", "Warnings arrive before the needle pegs. Usually.");
   }
 }
 
@@ -182,39 +182,39 @@ const EVENTS = [
     pushWire("Main Street Post", "War breaks out overseas. Gas spikes overnight.", {brk:true});
     showCard("SCENARIO", "tag-event", "WAR BREAKS OUT",
       "Jets overhead, convoys on the road, and the gas sign is spinning. The debt ticker just found a second gear. Hike and risk the street, or hold and feed the fire.",
-      "BACK TO THE LEVER", null, "War lasts about 6 months. It does not ask permission.");
+      "BACK TO THE WAR ROOM", null, "War lasts about 6 months. It does not ask permission.");
   }},
   {id:"oil", when:() => S.month >= 4, run(){
     S.shockInf += 1.3; S.gasMult = Math.max(S.gasMult, 1.5);
     pushWire("Main Street Post", "Oil shock: tanker trouble sends fuel prices climbing.", {brk:true});
     showCard("SCENARIO", "tag-event", "OIL SHOCK",
       "A tanker, a strait, a problem. Fuel jumps and everything that rides on a truck follows it up.",
-      "BACK TO THE LEVER");
+      "BLAME THE TANKER");
   }},
   {id:"boom", when:() => S.month >= 5, run(){
     S.u = Math.max(2.6, S.u - 0.8); S.shockInf += 0.4;
     showCard("SCENARIO", "tag-event", "TECH BOOM",
       "A new gadget has the whole street queueing and hiring. Jobs bloom, and so do prices, a little.",
-      "BACK TO THE LEVER");
+      "TAKE THE CREDIT");
   }},
   {id:"bust", when:() => S.month >= 6, run(){
     S.u += 1.2; S.shockInf -= 0.5;
     pushWire("Union Daily", "Housing bust: the cranes have stopped.", {brk:true});
     showCard("SCENARIO", "tag-event", "HOUSING BUST",
       "The cranes stopped. The for-sale signs multiplied. The street is losing work faster than prices are falling.",
-      "BACK TO THE LEVER");
+      "BACK TO THE BAILOUTS");
   }},
   {id:"vigilantes", when:() => S.month >= 7, run(){
     if(S.rate < 5.5){ S.shockInf += 0.8; }
     showCard("SCENARIO", "tag-event", "BOND VIGILANTES",
       "The bond market is selling first and asking later. Yields spike. " + (S.rate < 5.5 ? "They think your rate is a joke." : "Your high rate earns a grudging nod."),
-      "BACK TO THE LEVER");
+      "BACK TO BEGGING MARKETS");
   }},
   {id:"snarl", when:() => S.month >= 3, run(){
     S.shockInf += 1.0;
     showCard("SCENARIO", "tag-event", "SUPPLY CHAINS SNARL AGAIN",
       "Ports jam, parts vanish, shelves thin out. The street has heard this excuse before. It is true anyway.",
-      "BACK TO THE LEVER");
+      "BLAME THE PORTS");
   }}
 ];
 
@@ -223,17 +223,17 @@ function ladderCard(stage){
     S.gasFrozen = true; S.freezeLeft = 4; S.controlsLeft = 4;
     showCard("SERFDOM LADDER &middot; STAGE 7", "tag-story", "PRICE CONTROLS",
       "The Hill has had enough of your needle. An official price board goes up: gas is frozen by law. The sign stops. The queues start. Underneath, the pressure keeps building.",
-      "GOVERN THE STREET", null, "The ladder only advances while you are losing. It never moves back.");
+      "FREEZE EVERYTHING", null, "The ladder only advances while you are losing. It never moves back.");
   } else if(stage === 2){
     S.controlsLeft = 4;
     showCard("SERFDOM LADDER &middot; STAGE 8", "tag-story", "WAGE CONTROLS",
       "Prices were only the means. Now wages need permission too, and a new office allots both. Your lever still moves. It just matters less.",
-      "GOVERN THE STREET", null, "The ladder only advances while you are losing. It never moves back.");
+      "ALLOT THE WAGES", null, "The ladder only advances while you are losing. It never moves back.");
   } else {
     S.lieLeft = 3;
     showCard("SERFDOM LADDER &middot; STAGE 12", "tag-story", "THE END OF TRUTH",
       "Loudspeakers on the bank. Posters of your face. From today, the panel publishes a calmer inflation number. The street keeps its own count.",
-      "GOVERN THE STREET", null, "Displayed inflation is now revised. Street prices are not.");
+      "REVISE THE NUMBERS", null, "Displayed inflation is now revised. Street prices are not.");
   }
 }
 
