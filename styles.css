@@ -480,3 +480,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .stage{border-radius:0;box-shadow:none}
 }
 body,button,.stage{touch-action:manipulation}
+
+/* ===== v21: term over = one full-screen letter; flatter report buttons on mobile ===== */
+#screenReport{padding:0;gap:0;background:linear-gradient(180deg,#FBF7EA,var(--cream))}
+#screenReport .report-card{flex:none;background:none;border-radius:0;box-shadow:none;padding:30px 22px 6px}
+#screenReport .share-box{flex:none;background:none;border:none;border-radius:0;backdrop-filter:none;box-shadow:none;padding:10px 22px 26px}
+#screenReport .share-title{color:#8A7B52}
+#screenReport .post-preview{background:#FFFDF4;border-color:#D8CBA6;color:#3A3423}
+#screenReport .btn-share-x{background:#221D10;color:#F3EDDD;border:none}
+#screenReport .btn-newterm{background:#221D10;color:#fff;border:none}
+#screenReport .btn-hall2{color:#4A4230;border-color:#B9A86F}
+@media (max-width:760px){
+  #screenReport .btn-newterm, #screenReport .btn-hall2{padding:8px 10px;font-size:14px}
+}

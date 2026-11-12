@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fed Chair Tycoon: Scene Wireframe</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#EDF1F7;color:#20344F;padding:28px 30px 34px}
+  h1{font-size:21px;letter-spacing:1px}
+  .sub{font-size:12.5px;color:#5A6E8C;margin:6px 0 22px}
+  .frames{display:flex;gap:34px;align-items:flex-start}
+  .fwrap{display:flex;flex-direction:column;gap:9px}
+  .fname{font-size:13px;font-weight:700;letter-spacing:1.2px}
+  .frame{position:relative;background:#FFF;border:2px solid #20344F;overflow:hidden}
+  .zone{position:absolute;border:1.5px dashed #33507A;background:rgba(51,80,122,.07);display:flex;align-items:center;justify-content:center;text-align:center}
+  .zone span{font-size:10.5px;background:rgba(255,255,255,.88);padding:1px 5px;position:relative;z-index:2;font-weight:700;letter-spacing:.8px;color:#20344F;line-height:1.45;padding:2px}
+  .zone small{display:block;font-weight:400;font-size:9.5px;color:#5A6E8C;letter-spacing:.4px}
+  .solid{border-style:solid;background:rgba(51,80,122,.13)}
+  .gold{border-color:#9A7B14;background:rgba(233,197,60,.16)}
+  .red{border-color:#B03A2E;background:rgba(224,72,61,.13)}
+  .bar{position:absolute;border:1.5px solid #33507A;background:repeating-linear-gradient(180deg,rgba(51,80,122,.20) 0 10px,rgba(51,80,122,.05) 10px 20px)}
+  .bar span{position:absolute;top:-19px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;letter-spacing:1px}
+  .safe{position:absolute;border:2px dashed #B03A2E;pointer-events:none}
+  .safe span{position:absolute;top:5px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:#B03A2E;letter-spacing:1px;white-space:nowrap}
+  .spec{margin-top:26px;max-width:1180px}
+  .spec h2{font-size:14px;letter-spacing:1.2px;margin-bottom:9px}
+  .spec li{font-size:12.5px;line-height:1.75;color:#2C4258;margin-left:18px}
+  .dock{background:rgba(32,52,79,.10)}
+  .tag{background:rgba(233,197,60,.94);z-index:3}
+  .ontop{z-index:3}
+</style>
+</head>
+<body>
+<h1>FED CHAIR TYCOON: SCENE WIREFRAME (FROM SCRATCH)</h1>
+<div class="sub">Positions in % of the stage. Left: the live 9:16 gameplay stage. Right: the 4:3 backdrop plate and its 9:16 crop-safe zone.</div>
+
+<div class="frames">
+  <div class="fwrap">
+    <div class="fname">A · GAMEPLAY STAGE 9:16 (portrait phone)</div>
+    <div class="frame" style="width:405px;height:720px">
+      <!-- HUD -->
+      <div class="zone solid" style="left:2%;top:1%;width:44%;height:6%"><span>DEBT TICKER<small>$38.4T, always climbing</small></span></div>
+      <div class="zone solid" style="left:56%;top:1%;width:17%;height:6%"><span>NEWS · GEAR</span></div>
+      <div class="zone solid" style="left:76%;top:1%;width:22%;height:6%"><span>MONTH 1/48</span></div>
+      <!-- price chips -->
+      <div class="zone gold" style="left:2%;top:8.5%;width:22%;height:4.5%"><span>GAS $</span></div>
+      <div class="zone gold" style="left:26%;top:8.5%;width:22%;height:4.5%"><span>EGGS $</span></div>
+      <div class="zone gold" style="left:50%;top:8.5%;width:22%;height:4.5%"><span>JOBS %</span></div>
+      <div class="zone gold" style="left:74%;top:8.5%;width:24%;height:4.5%"><span>LIVES 5</span></div>
+      <!-- scene -->
+      <div class="zone" style="left:13%;top:14%;width:74%;height:9%;align-items:flex-start;justify-content:flex-start"><span>SKY<small>clouds only</small></span></div>
+      <div class="zone solid gold ontop" style="left:36%;top:15%;width:28%;height:10%"><span>THE FED<small>on the hill, centred, always visible</small></span></div>
+      <div class="zone" style="left:13%;top:25%;width:74%;height:8%"><span>HILL<small>green slope, Fed sits on the crest line</small></span></div>
+      <div class="zone solid" style="left:13%;top:33%;width:26%;height:14%"><span>GAS STATION<small>left, full building in frame</small></span></div>
+      <div class="zone tag" style="left:15%;top:30.5%;width:16%;height:5.5%"><span>GAS SIGN<small>live price</small></span></div>
+      <div class="zone solid" style="left:52%;top:37%;width:35%;height:12%"><span>SUPERMARKET<small>right, full building in frame</small></span></div>
+      <div class="zone tag" style="left:56%;top:44%;width:13%;height:5%"><span>EGGS TAG<small>live price</small></span></div>
+      <div class="zone" style="left:0;top:49%;width:100%;height:8%"><span>ROAD + WALKERS<small>crossing left to right and back</small></span></div>
+      <!-- side bars -->
+      <div class="bar" style="left:4%;top:24%;width:6%;height:31%"><span>GDP</span></div>
+      <div class="bar" style="left:90%;top:24%;width:6%;height:31%"><span>CPI</span></div>
+      <!-- dock -->
+      <div class="zone dock" style="left:0;top:57%;width:100%;height:43%"><span></span></div>
+      <div class="zone solid" style="left:3%;top:59%;width:14%;height:11%"><span>CHAIR<small>portrait</small></span></div>
+      <div class="zone" style="left:19%;top:59%;width:35%;height:11%"><span>KELVIN WHALES<small>name + title</small></span></div>
+      <div class="zone solid gold" style="left:66%;top:59%;width:31%;height:11%"><span>INFLATION<small>2.1% big, trend arrow</small></span></div>
+      <div class="zone solid" style="left:3%;top:72%;width:94%;height:6%"><span>NEEDLE GAUGE<small>RECESSION (left) · green centre · INFLATION (right)</small></span></div>
+      <div class="zone solid" style="left:3%;top:80%;width:17%;height:17%"><span>&#9650; &#9660;<small>rate triangles, stacked, thumb size</small></span></div>
+      <div class="zone" style="left:24%;top:80%;width:38%;height:17%"><span>5.00%<small>INTEREST RATE, 0.25 steps</small></span></div>
+      <div class="zone solid red" style="left:66%;top:79%;width:31%;height:18%"><span>ITEM BUTTON<small>crisis item, tap to use, glows when held</small></span></div>
+    </div>
+  </div>
+
+  <div class="fwrap">
+    <div class="fname">B · BACKDROP PLATE 4:3 (title + wide screens)</div>
+    <div class="frame" style="width:680px;height:510px">
+      <div class="zone" style="left:0;top:0;width:100%;height:46%"><span>SKY 0-46%<small>title coin + FED CHAIR TYCOON text live here</small></span></div>
+      <div class="zone solid gold ontop" style="left:42%;top:47%;width:16%;height:13%"><span>THE FED<small>centred, base at 60%</small></span></div>
+      <div class="zone" style="left:0;top:46%;width:100%;height:26%;align-items:flex-start;justify-content:flex-start"><span>HILLS<small>crest line carries the Fed</small></span></div>
+      <div class="zone solid" style="left:27%;top:70%;width:19%;height:17%"><span>GAS STATION<small>blank sign, no baked prices</small></span></div>
+      <div class="zone solid" style="left:48%;top:66%;width:18%;height:21%"><span>SUPERMARKET<small>blank sign</small></span></div>
+      <div class="zone" style="left:0;top:87%;width:100%;height:13%"><span>ROAD<small>full width, dashes</small></span></div>
+      <div class="zone" style="left:0;top:60%;width:20%;height:27%"><span>EDGE SCENERY<small>trees, houses: safe to crop</small></span></div>
+      <div class="zone" style="left:80%;top:60%;width:20%;height:27%"><span>EDGE SCENERY<small>trees, houses: safe to crop</small></span></div>
+      <div class="safe" style="left:29%;top:0;width:42%;height:100%"><span>9:16 CENTRE CROP: EVERYTHING THAT MATTERS FITS INSIDE</span></div>
+    </div>
+    <div class="fname" style="margin-top:4px">TITLE SCREEN = plate B full-bleed (cover). GAMEPLAY = plate drawn for frame A directly, 9:16 native.</div>
+  </div>
+</div>
+
+<div class="spec">
+  <h2>BUILD RULES</h2>
+  <ul>
+    <li>Dock is fixed and never scrolls: portrait + name, inflation readout, needle gauge, rate triangles + rate %, item button. Scene lives above it.</li>
+    <li>Fed always centred on the hill crest and never covered by HUD, chips, coin or title text: portrait band 15-25% of stage height, plate band 47-60%.</li>
+    <li>Gas station left, supermarket right, both fully inside the frame on portrait (no cropped storefronts). Signs stay blank in the art; the game paints live prices on top.</li>
+    <li>GDP and CPI bars overlay the scene edges (left and right, 24-55% height). Nothing important in the art may sit under them.</li>
+    <li>Wide plate is 4:3; the centre 42% of its width is the 9:16 crop. Fed, both shops and the road live inside that band; only scenery may fall outside.</li>
+    <li>HUD debt ticker and month pill sit on top of the sky. Price chips (gas, eggs, jobs, lives) sit under the HUD, over the sky and hill top.</li>
+  </ul>
+</div>
+</body>
+</html>
