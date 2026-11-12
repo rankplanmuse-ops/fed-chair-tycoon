@@ -42,7 +42,7 @@ function freshState(){
     history:[], wire:[], unread:0, ladder:0, dangerRun:0, lives:5, meetings:0, scarHot:0, scarCold:0, streetDrift:1, sbr:false, sbrDone:false, btcPrice:97400, btcHeld:0,
     war:false, warLeft:0, gasMult:1, gasFrozen:false, freezeLeft:0,
     jekyllDone:false, scandalDone:false, bailoutDone:false, corpDone:false,
-    controlsLeft:0, lieLeft:0, shockInf:0, lastEvent:-9, warDone:false,
+    controlsLeft:0, lieLeft:0, shockInf:0, shockGdpHit:false, lastEvent:-9, warDone:false,
     neutral:4.6, infVel:0, uVel:0,
     gdp:2.1, gdpVel:0, distort:0, bustCd:0, peakDistort:0,
     frozenGas:null,
@@ -377,11 +377,12 @@ const EVENTS = [
   }},
   {id:"jekyll", when:() => S.month >= 10 && !S.jekyllDone, run(){
     S.jekyllDone = true;
-    S.inf += (2 - S.inf) * 0.35; S.u += (4.4 - S.u) * 0.3; S.debt *= 1.004;
     pushWire("Hill Insider", "The chair has vanished for a weekend. Georgia, apparently. Duck season.", {brk:true});
     showCard("SCENARIO", "tag-event", "JEKYLL ISLAND WEEKEND",
-      "An unmarked invitation: a hunting club in Georgia, first names only, no staff, no guest book. The men who built this bank in 1910 would approve. The street calms a little. The club, as always, sends the bill to the debt ticker.",
-      "BACK TO THE DUCK HUNT", null, "Documented: November 1910, the Aldrich Plan was drafted here in nine days. It became the Federal Reserve Act of 1913.");
+      "An unmarked invitation: a hunting club in Georgia, first names only, no staff, no guest book. The men who built this bank in 1910 would approve. Go, and the street calms while the club quietly sends the bill to the debt ticker. Refuse, and your clean hands repair some of the damage from past rescues.",
+      "GO IN SECRET", "REFUSE. STAY PUBLIC", "Documented: November 1910, the Aldrich Plan was drafted here in nine days. It became the Federal Reserve Act of 1913.",
+      () => { S.inf += (2 - S.inf) * 0.35; S.u += (4.4 - S.u) * 0.3; S.debt *= 1.004; sfx("item"); toast("THE STREET CALMS. THE CLUB SENDS THE BILL."); render(); },
+      () => { S.scarHot = Math.max(0, S.scarHot - 0.25); S.scarCold = Math.max(0, S.scarCold - 0.25); sfx("item"); toast("CLEAN HANDS: RESCUE SCARS FADE"); render(); });
   }},
   {id:"bailout", when:() => S.month >= 12 && !S.bailoutDone, run(){
     S.bailoutDone = true;
@@ -551,7 +552,11 @@ function monthTick(){
   /* events */
   if(!S.paused && S.month - S.lastEvent >= 3 && Math.random() < 0.36){
     const evs = EVENTS.filter(e => e.when());
-    if(evs.length){ const ev = evs[Math.floor(Math.random()*evs.length)]; S.lastEvent = S.month; ev.run(); }
+    if(evs.length){ const ev = evs[Math.floor(Math.random()*evs.length)]; S.lastEvent = S.month; ev.run();
+      if(!S.shockGdpHit && (ev.id === "war" || ev.id === "oil" || ev.id === "bust" || ev.id === "snarl")){
+        S.shockGdpHit = true; S.gdp = S.gdp > 0 ? S.gdp * 0.8 : S.gdp - 0.5;
+      }
+    }
   }
   ambientHeadline();
   if(Math.random() < 0.4) ambientHeadline();
@@ -833,6 +838,8 @@ document.addEventListener("pointerdown", () => {
   if(S.settings.music) musicStart();
   if(S.settings.sfx || S.settings.music) ac();
 }, true);
+document.addEventListener("gesturestart", e => e.preventDefault());
+document.addEventListener("dblclick", e => e.preventDefault(), {passive:false});
 document.addEventListener("DOMContentLoaded", () => {
   S = freshState();
   $("sceneA").style.backgroundImage = "url(assets/scene-normal.webp)";
