@@ -158,7 +158,8 @@ function sceneFor(){
 
 /* ---------- live prices on the street signs ---------- */
 /* rects are 0-1000 normalised boxes around the prices baked into each plate;
-   layout maps them through the same cover/50% 92% maths the CSS background uses */
+   layout maps them through the same maths the CSS background uses:
+   cover anchored 30% from the top on phones, contain centred on wider screens */
 const SCENE_PRICES = {
   normal:    {iw:1120, ih:2240, gas:{r:[80,583,265,647], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[516,777,644,823], tag:[637,782,707,812]}},
   inflation: {iw:1120, ih:2240, gas:{r:[143,639,352,698], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[668,751,751,789], tag:null}},
@@ -190,8 +191,9 @@ function layoutPrices(){
   const H = scEl ? scEl.clientHeight : stage.clientHeight - dockH;
   const baseX = scEl ? scEl.offsetLeft : 0;
   const cfg = SCENE_PRICES[S.scene] || SCENE_PRICES.normal;
-  const scale = Math.min(W / cfg.iw, H / cfg.ih);
-  const offX = baseX + (W - cfg.iw * scale) * 0.5, offY = 30;
+  const coverMode = window.matchMedia("(max-width: 760px)").matches;
+  const scale = coverMode ? Math.max(W / cfg.iw, H / cfg.ih) : Math.min(W / cfg.iw, H / cfg.ih);
+  const offX = baseX + (W - cfg.iw * scale) * 0.5, offY = (H - cfg.ih * scale) * (coverMode ? 0.30 : 0.5);
   const gasEl = $("sceneGas"), gasTxt = $("sceneGasTxt");
   const gh = placePrice(gasEl, cfg, cfg.gas.r, scale, offX, offY);
   gasEl.style.background = cfg.gas.bg; gasEl.style.color = cfg.gas.fg;
