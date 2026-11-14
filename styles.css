@@ -550,3 +550,10 @@ html,body{overflow-x:clip}
   .chair-name{font-size:17px}
   .item-slot.has-item .iname{font-size:12.5px}
 }
+
+/* v26: wide plate on wide-shaped phone boxes (browser chrome eats the
+   height): the same state tints as the desktop wide screen, at any width. */
+.stage.wideplate[data-scene="inflation"] .scene{filter:saturate(1.18) hue-rotate(-10deg) brightness(1.04)}
+.stage.wideplate[data-scene="recession"] .scene{filter:saturate(.5) brightness(.93)}
+.stage.wideplate[data-scene="war"] .scene{filter:saturate(.75) sepia(.4) brightness(.95)}
+.stage.wideplate[data-scene="disaster"] .scene{filter:saturate(.4) brightness(.8)}

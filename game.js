@@ -142,12 +142,12 @@ function renderWire(){
 /* ---------- scene ---------- */
 let sceneFlip = false;
 function setScene(name){
-  const stEl = $("stage"); if(stEl) stEl.dataset.scene = name;
+  const stEl = $("stage"); if(stEl){ stEl.dataset.scene = name; stEl.classList.toggle("wideplate", plateMode()); }
   if(!S || S.scene === name) return;
   S.scene = name;
   const showEl = sceneFlip ? $("sceneA") : $("sceneB");
   const hideEl = sceneFlip ? $("sceneB") : $("sceneA");
-  const art = wideMode() ? "assets/title-wide.webp" : "assets/scene-" + name + ".webp";
+  const art = plateMode() ? "assets/title-wide.webp" : "assets/scene-" + name + ".webp";
   showEl.style.backgroundImage = "url(" + art + ")";
   $("sceneBg").style.backgroundImage = "url(" + art + ")";
   showEl.style.opacity = 1; hideEl.style.opacity = 0;
@@ -167,8 +167,8 @@ function sceneFor(){
    layout maps them through the same maths the CSS background uses:
    cover anchored 30% from the top on phones, contain centred on wider screens */
 const SCENE_PRICES = {
-  normal:    {iw:1120, ih:2240, gas:{r:[80,583,265,647], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[516,777,644,823], tag:[637,782,707,812]}},
-  inflation: {iw:1120, ih:2240, gas:{r:[143,639,352,698], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[668,751,751,789], tag:null}},
+  normal:    {iw:1120, ih:2240, gas:{r:[80,583,265,647], safe:[14,555,314,704], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[516,777,644,823], tag:[637,782,707,812]}},
+  inflation: {iw:1120, ih:2240, gas:{r:[143,639,352,698], safe:[43,580,352,704], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[668,751,751,789], tag:null}},
   recession: {iw:1184, ih:2096, gas:{r:[0,509,188,583], bg:"#6B1F16", fg:"#D8C58F"}, eggs:null},
   disaster:  {iw:1184, ih:2096, gas:{r:[36,520,196,584], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[746,734,812,772], tag:null}},
   war:       {iw:1120, ih:2240, gas:{r:[18,590,215,633], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[775,782,921,832], tag:[909,785,981,819]}}
@@ -176,6 +176,15 @@ const SCENE_PRICES = {
 /* v23 wide desktop: the 4:3 screen uses the wide plate for every state (state tints in CSS) */
 const WIDE_PRICES = {iw:1824, ih:1368, gas:{r:[314,566,410,595], bg:"#F5A623", fg:"#221D10"}, eggs:{r:[524,663,612,682], tag:null}};
 function wideMode(){ return window.matchMedia("(min-width: 1101px)").matches; }
+/* The wide plate also takes over whenever the scene box itself is wide-shaped
+   (a phone browser whose chrome eats the height, e.g. Brave): the tall 1:2
+   plates would crop the Fed off the top and shove the shops off the bottom,
+   while the 4:3 plate fits the whole street into that box. */
+function plateMode(){
+  if(wideMode()) return true;
+  const el = $("sceneA");
+  return !!(el && el.clientHeight && (el.clientWidth / el.clientHeight) > 0.68);
+}
 function priceStr(v){
   if(v >= 100) return String(Math.round(v));
   if(v >= 10) return v.toFixed(1);
@@ -199,7 +208,16 @@ function layoutPrices(){
   const W = scEl ? scEl.clientWidth : stage.clientWidth;
   const H = scEl ? scEl.clientHeight : stage.clientHeight - dockH;
   const baseX = scEl ? scEl.offsetLeft : 0;
-  const wide = wideMode();
+  const wantWide = plateMode();
+  if(S._plateWide !== undefined && S._plateWide !== wantWide && S.scene){
+    /* The box changed shape (browser chrome opened or closed, rotation):
+       repaint the scene with the plate that fits this box, then lay out. */
+    S._plateWide = wantWide;
+    const cur = S.scene; S.scene = null; setScene(cur);
+    return;
+  }
+  S._plateWide = wantWide;
+  const wide = wantWide;
   const cfg = wide ? WIDE_PRICES : (SCENE_PRICES[S.scene] || SCENE_PRICES.normal);
   const coverMode = wide || window.matchMedia("(max-width: 760px)").matches;
   const scale0 = coverMode ? Math.max(W / cfg.iw, H / cfg.ih) : Math.min(W / cfg.iw, H / cfg.ih);
@@ -209,7 +227,7 @@ function layoutPrices(){
     /* If the price boards cannot all fit clear of the bar zones at cover
        scale (war, disaster), drop to the fit scale: the plate still fills
        the height, and the side gaps land behind the bars. */
-    const rects0 = [cfg.gas.r]; if(cfg.eggs) rects0.push(cfg.eggs.r);
+    const rects0 = [cfg.gas.safe || cfg.gas.r]; if(cfg.eggs) rects0.push(cfg.eggs.r);
     const spanAt = (dW) => (Math.max(...rects0.map(r => r[2])) - Math.min(...rects0.map(r => r[0]))) / 1000 * dW;
     if(spanAt(dispW) > W - 2 * safe){
       const s2 = Math.min(W / cfg.iw, H / cfg.ih);
@@ -223,7 +241,7 @@ function layoutPrices(){
        GDP/CPI bar zones on phones: when cover crops the plate, clamp the crop
        so the baked signs (and their overlays) stay in frame. A plate pushed a
        few px sideways for this leaves its gap behind a bar, where it hides. */
-    const rects = [cfg.gas.r]; if(cfg.eggs) rects.push(cfg.eggs.r);
+    const rects = [cfg.gas.safe || cfg.gas.r]; if(cfg.eggs) rects.push(cfg.eggs.r);
     const minRx = Math.min(...rects.map(r => r[0])) / 1000 * dispW;
     const maxRx = Math.max(...rects.map(r => r[2])) / 1000 * dispW;
     const loS = safe - minRx, hiS = W - safe - maxRx;
@@ -243,10 +261,23 @@ function layoutPrices(){
   /* (Phones run the scene full-bleed under the bars; the backdrop layer is
      desktop-only and keeps its CSS cover look there.) */
   const gasEl = $("sceneGas"), gasTxt = $("sceneGasTxt");
-  const gh = placePrice(gasEl, cfg, cfg.gas.r, scale, offX, offY);
+  const gasTagEl = $("sceneGasTag");
+  const gasRect = cfg.gas.r;
+  const gh = placePrice(gasEl, cfg, gasRect, scale, offX, offY);
+  if(wide && gh < 20 && gasTagEl){
+    /* Wide plate on a small screen: the baked gas board is too thin for
+       legible digits, so the price rides a card under the sign instead. */
+    gasEl.style.display = "none";
+    gasTagEl.style.display = "flex";
+    const th = placePrice(gasTagEl, cfg, [318,608,428,660], scale, offX, offY);
+    gasTagEl.style.fontSize = (th * 0.55) + "px";
+  } else {
+    gasEl.style.display = "flex";
+    if(gasTagEl) gasTagEl.style.display = "none";
+  }
   gasEl.style.background = cfg.gas.bg; gasEl.style.color = cfg.gas.fg;
   const gtxt = gasTxt.textContent;
-  const gw = (cfg.gas.r[2]-cfg.gas.r[0]) / 1000 * cfg.iw * scale;
+  const gw = (gasRect[2] - gasRect[0]) / 1000 * cfg.iw * scale;
   const est = [...gtxt].reduce((a,c) => a + (c === "." ? 0.32 : 0.56), 0);
   gasTxt.style.width = gw + "px";
   gasTxt.style.fontSize = Math.min(gh * 0.74, gw / Math.max(est,1) * 0.96) + "px";
@@ -257,7 +288,15 @@ function layoutPrices(){
     const eh = placePrice(eggsEl, cfg, cfg.eggs.r, scale, offX, offY);
     eggsEl.querySelector(".se-k").style.fontSize = (eh * 0.30) + "px";
     eggsEl.querySelector(".se-v").style.fontSize = (eh * 0.44) + "px";
-    if(cfg.eggs.tag){
+    if(wide && eh < 16){
+      /* The wide plate's eggs board is a thin roof strip: at phone scale the
+         digits would clip, so the price rides a card under the market sign
+         instead (the HUD chip still carries the exact figure). */
+      eggsEl.style.display = "none";
+      tagEl.style.display = "flex";
+      const th = placePrice(tagEl, cfg, [530,692,640,740], scale, offX, offY);
+      tagEl.style.fontSize = (th * 0.55) + "px";
+    } else if(cfg.eggs.tag){
       tagEl.style.display = "flex";
       const th = placePrice(tagEl, cfg, cfg.eggs.tag, scale, offX, offY);
       tagEl.style.fontSize = (th * 0.55) + "px";
@@ -284,6 +323,7 @@ function renderScenePrices(){
     if(e !== lastEggsTxt){ lastEggsTxt = e; }
     $("sceneEggsVal").textContent = e;
     $("sceneEggsTag").textContent = e;
+    const gt = $("sceneGasTag"); if(gt) gt.textContent = gTxt;
   }
   layoutPrices();
 }
