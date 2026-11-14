@@ -526,3 +526,28 @@ body,button,.stage{touch-action:manipulation}
   .news-tab .badge{position:static;writing-mode:horizontal-tb;background:#FFD166;color:#221D10;border-radius:999px;min-width:20px;height:20px;line-height:20px;text-align:center;font-size:11px;padding:0 5px}
   .sp-eggs{background:#F5A623;color:#221D10}
 }
+
+/* v24: fully responsive hardening. The chips row becomes a 4-column grid on
+   phones so long late-game prices can never push LIVES off the stage; the
+   scene insets narrow to 44px (just clear of the GDP/CPI bar tracks) so the
+   plate fills more of the phone width; a global clip kills horizontal page
+   overflow; and layoutPrices now clamps the cover crop so the baked price
+   boards always stay in frame, painting both scene layers with the exact
+   same inline size and position it uses for the overlays. */
+html,body{overflow-x:clip}
+.hud-debt{min-width:0}
+@media (max-width:760px){
+  .scene{left:44px;right:44px}
+  .scene-bg{left:0;right:0}
+  .prices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));left:10px;right:10px;gap:5px}
+  .pchip{justify-content:center;min-width:0;padding:4px 4px;font-size:10.5px;gap:4px;overflow:hidden}
+  .pchip b{white-space:nowrap}
+  #sbrChip{grid-column:1 / -1;justify-self:start}
+}
+@media (max-width:360px){
+  .prices .picon{display:none}
+  .pchip{font-size:10px}
+  .chair-pic{width:48px;height:48px}
+  .chair-name{font-size:17px}
+  .item-slot.has-item .iname{font-size:12.5px}
+}

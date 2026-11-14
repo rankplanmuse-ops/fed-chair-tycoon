@@ -203,7 +203,28 @@ function layoutPrices(){
   const cfg = wide ? WIDE_PRICES : (SCENE_PRICES[S.scene] || SCENE_PRICES.normal);
   const coverMode = wide || window.matchMedia("(max-width: 760px)").matches;
   const scale = coverMode ? Math.max(W / cfg.iw, H / cfg.ih) : Math.min(W / cfg.iw, H / cfg.ih);
-  const offX = baseX + (W - cfg.iw * scale) * 0.5, offY = (H - cfg.ih * scale) * (wide ? 0.5 : (coverMode ? 0.30 : 0.5));
+  const dispW = cfg.iw * scale, dispH = cfg.ih * scale;
+  let offX = baseX + (W - dispW) * 0.5;
+  let offY = (H - dispH) * (wide ? 0.5 : (coverMode ? 0.30 : 0.5));
+  if(coverMode){
+    /* Keep the price boards inside the visible plate window: when cover crops
+       the plate, clamp the crop so the baked signs (and their overlays) stay
+       in frame instead of sliding under the bars or off the box edge. */
+    const rects = [cfg.gas.r]; if(cfg.eggs) rects.push(cfg.eggs.r);
+    const minRx = Math.min(...rects.map(r => r[0])) / 1000 * dispW;
+    const maxRx = Math.max(...rects.map(r => r[2])) / 1000 * dispW;
+    if(maxRx - minRx <= W) offX = baseX + Math.min(Math.max(offX - baseX, -minRx), W - maxRx);
+    const minRy = Math.min(...rects.map(r => r[1])) / 1000 * dispH;
+    const maxRy = Math.max(...rects.map(r => r[3])) / 1000 * dispH;
+    if(maxRy - minRy <= H) offY = Math.min(Math.max(offY, -minRy), H - maxRy);
+  }
+  /* Paint both scene layers with exactly this geometry (inline size + position),
+     so the CSS fit can never diverge from the overlay maths again. */
+  [$("sceneA"), $("sceneB")].forEach(el => {
+    if(!el) return;
+    el.style.backgroundSize = dispW + "px " + dispH + "px";
+    el.style.backgroundPosition = (offX - baseX) + "px " + offY + "px";
+  });
   const gasEl = $("sceneGas"), gasTxt = $("sceneGasTxt");
   const gh = placePrice(gasEl, cfg, cfg.gas.r, scale, offX, offY);
   gasEl.style.background = cfg.gas.bg; gasEl.style.color = cfg.gas.fg;
