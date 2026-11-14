@@ -202,18 +202,33 @@ function layoutPrices(){
   const wide = wideMode();
   const cfg = wide ? WIDE_PRICES : (SCENE_PRICES[S.scene] || SCENE_PRICES.normal);
   const coverMode = wide || window.matchMedia("(max-width: 760px)").matches;
-  const scale = coverMode ? Math.max(W / cfg.iw, H / cfg.ih) : Math.min(W / cfg.iw, H / cfg.ih);
-  const dispW = cfg.iw * scale, dispH = cfg.ih * scale;
+  const scale0 = coverMode ? Math.max(W / cfg.iw, H / cfg.ih) : Math.min(W / cfg.iw, H / cfg.ih);
+  let scale = scale0, dispW = cfg.iw * scale, dispH = cfg.ih * scale;
+  const safe = (coverMode && !wide) ? 44 : 0;
+  if(safe > 0){
+    /* If the price boards cannot all fit clear of the bar zones at cover
+       scale (war, disaster), drop to the fit scale: the plate still fills
+       the height, and the side gaps land behind the bars. */
+    const rects0 = [cfg.gas.r]; if(cfg.eggs) rects0.push(cfg.eggs.r);
+    const spanAt = (dW) => (Math.max(...rects0.map(r => r[2])) - Math.min(...rects0.map(r => r[0]))) / 1000 * dW;
+    if(spanAt(dispW) > W - 2 * safe){
+      const s2 = Math.min(W / cfg.iw, H / cfg.ih);
+      if(s2 < scale && spanAt(cfg.iw * s2) <= W - 2 * safe){ scale = s2; dispW = cfg.iw * scale; dispH = cfg.ih * scale; }
+    }
+  }
   let offX = baseX + (W - dispW) * 0.5;
   let offY = (H - dispH) * (wide ? 0.5 : (coverMode ? 0.30 : 0.5));
   if(coverMode){
-    /* Keep the price boards inside the visible plate window: when cover crops
-       the plate, clamp the crop so the baked signs (and their overlays) stay
-       in frame instead of sliding under the bars or off the box edge. */
+    /* Keep the price boards inside the visible plate window AND clear of the
+       GDP/CPI bar zones on phones: when cover crops the plate, clamp the crop
+       so the baked signs (and their overlays) stay in frame. A plate pushed a
+       few px sideways for this leaves its gap behind a bar, where it hides. */
     const rects = [cfg.gas.r]; if(cfg.eggs) rects.push(cfg.eggs.r);
     const minRx = Math.min(...rects.map(r => r[0])) / 1000 * dispW;
     const maxRx = Math.max(...rects.map(r => r[2])) / 1000 * dispW;
-    if(maxRx - minRx <= W) offX = baseX + Math.min(Math.max(offX - baseX, -minRx), W - maxRx);
+    const loS = safe - minRx, hiS = W - safe - maxRx;
+    if(loS <= hiS) offX = baseX + Math.min(Math.max(offX - baseX, loS), hiS);
+    else if(maxRx - minRx <= W) offX = baseX + Math.min(Math.max(offX - baseX, -minRx), W - maxRx);
     const minRy = Math.min(...rects.map(r => r[1])) / 1000 * dispH;
     const maxRy = Math.max(...rects.map(r => r[3])) / 1000 * dispH;
     if(maxRy - minRy <= H) offY = Math.min(Math.max(offY, -minRy), H - maxRy);
@@ -225,6 +240,8 @@ function layoutPrices(){
     el.style.backgroundSize = dispW + "px " + dispH + "px";
     el.style.backgroundPosition = (offX - baseX) + "px " + offY + "px";
   });
+  /* (Phones run the scene full-bleed under the bars; the backdrop layer is
+     desktop-only and keeps its CSS cover look there.) */
   const gasEl = $("sceneGas"), gasTxt = $("sceneGasTxt");
   const gh = placePrice(gasEl, cfg, cfg.gas.r, scale, offX, offY);
   gasEl.style.background = cfg.gas.bg; gasEl.style.color = cfg.gas.fg;
