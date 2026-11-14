@@ -496,3 +496,33 @@ body,button,.stage{touch-action:manipulation}
 @media (max-width:760px){
   #screenReport .btn-newterm, #screenReport .btn-hall2{padding:8px 10px;font-size:14px}
 }
+
+/* v23: DUM DUM wire sound + wide desktop layout.
+   One wide 4:3 game screen, square corners. The Daily Ledger becomes a tab
+   inside the screen; the right-rail panels (Your Term, Hall top 5, The Job)
+   move into Settings (JS relocates the nodes, ids unchanged). The wide scene
+   uses the 4:3 plate for every state, with CSS tints per state. */
+.news-tab{display:none}
+#settingsExtras{display:flex;flex-direction:column;gap:14px}
+#settingsExtras:empty{display:none}
+#settingsExtras .panel{background:rgba(255,255,255,.05)}
+@media (min-width:1101px){
+  .app{display:block;max-width:none;padding:16px;position:relative}
+  .stage{width:min(100%, calc((100dvh - 32px) * 4 / 3));aspect-ratio:4/3;height:auto;max-height:calc(100dvh - 32px);margin:0 auto;border-radius:0}
+  .rail-right{display:none}
+  .scene-bg{display:none}
+  .scene{left:0;right:0;background-image:url(assets/title-wide.webp);background-size:cover;background-position:50% 50%}
+  .stage[data-scene="inflation"] .scene{filter:saturate(1.18) hue-rotate(-10deg) brightness(1.04)}
+  .stage[data-scene="recession"] .scene{filter:saturate(.5) brightness(.93)}
+  .stage[data-scene="war"] .scene{filter:saturate(.75) sepia(.4) brightness(.95)}
+  .stage[data-scene="disaster"] .scene{filter:saturate(.4) brightness(.8)}
+  .dock{display:flex;flex-direction:row;align-items:center;gap:20px;padding:12px 20px;border-radius:0;left:0;right:0;bottom:0}
+  .dock .panel-top{flex:none}
+  .dock .gbar{flex:1;margin:0}
+  .dock .panel-bottom{flex:none}
+  .stage > .rail-left{position:absolute;top:0;bottom:0;left:0;width:min(336px,82%);z-index:44;border-radius:0;border-left:none;border-top:none;border-bottom:none;overflow:visible;transform:translateX(-100%);transition:transform .38s cubic-bezier(.2,.8,.25,1)}
+  .app.news-open .stage > .rail-left{transform:none;box-shadow:24px 0 60px rgba(0,0,0,.45)}
+  .news-tab{display:flex;flex-direction:column;align-items:center;gap:10px;position:absolute;top:118px;right:-38px;width:38px;padding:16px 0 14px;background:#A33327;color:#FFF6E3;border:1px solid rgba(255,255,255,.25);border-left:none;border-radius:0;font-family:var(--font-d);font-size:14px;letter-spacing:.18em;writing-mode:vertical-rl;cursor:pointer;z-index:45}
+  .news-tab .badge{position:static;writing-mode:horizontal-tb;background:#FFD166;color:#221D10;border-radius:999px;min-width:20px;height:20px;line-height:20px;text-align:center;font-size:11px;padding:0 5px}
+  .sp-eggs{background:#F5A623;color:#221D10}
+}

@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Fed Chair Tycoon</title>
 <link rel="icon" href="assets/icon.png">
-<link rel="stylesheet" href="styles.css?v=22">
+<link rel="stylesheet" href="styles.css?v=23">
 </head>
 <body>
 <div class="app">
 
-  <aside class="rail rail-left">
+  <aside class="rail rail-left" id="railLeft">
+    <button class="news-tab" id="newsTab">NEWS<span class="badge hidden" id="tabBadge">0</span></button>
     <div class="rail-mast">The Daily Ledger</div>
     <div class="rail-date" id="railDate">TERM MONTH 1 &middot; WEEK 1 &middot; WASHINGTON</div>
     <div class="rail-rule"></div>
@@ -189,6 +190,7 @@
         <div class="fine" id="resignFine">Ends your current term. The term is scored and filed in the Hall of Chairs. There is no coming back from a signature.</div>
         <button class="btn-resign" id="resignBtn">SIGN &amp; RESIGN</button>
       </div>
+      <div id="settingsExtras"></div>
       <div class="foot">FED CHAIR TYCOON v0.1 &middot; A satire.<br>Any resemblance to a real central bank is entirely the point.<br>Music by Kevin MacLeod (incompetech.com), CC BY 4.0.</div>
     </section>
 
@@ -240,7 +242,7 @@
     <div class="toast hidden" id="toast"></div>
   </main>
 
-  <aside class="rail rail-right">
+  <aside class="rail rail-right" id="railRight">
     <div class="panel">
       <div class="panel-title">YOUR TERM</div>
       <div class="stat-grid">
@@ -265,7 +267,7 @@
   </aside>
 
 </div>
-<script src="game.js?v=22"></script>
+<script src="game.js?v=23"></script>
 <audio id="bgm" loop preload="auto" src="assets/music-monkeys.mp3"></audio>
 </body>
 </html>

@@ -54,12 +54,14 @@ function freshState(){
 
 /* ---------- news wire ---------- */
 function clock(){ return "M" + S.month + " W" + S.week; }
+let lastDum = 0;
 function pushWire(src, head, opts){
   opts = opts || {};
   S.wire.unshift({src:src, head:head, time:clock(), brk:!!opts.brk, warn:!!opts.warn, oped:!!opts.oped, read:false});
   if(S.wire.length > 30) S.wire.pop();
   if(!$("screenWire") || $("screenWire").classList.contains("hidden")){ S.unread++; }
   renderWire();
+  if(S.playing){ const t = performance.now(); if(t - lastDum > 900){ lastDum = t; sfx("dum"); } }
 }
 function streetHeat(){ return clamp(1 + (S.inf - 2) * 1.0, 0.5, 30); }
 function gasNow(){ return 3.49 * S.priceLevel * S.gasMult * streetHeat(); }
@@ -131,6 +133,8 @@ function renderWire(){
   $("unreadTxt").textContent = S.unread + " UNREAD";
   const b = $("wireBadge");
   b.textContent = S.unread; b.classList.toggle("hidden", S.unread === 0);
+  const tb = $("tabBadge");
+  if(tb){ tb.textContent = S.unread; tb.classList.toggle("hidden", S.unread === 0); }
   const d = "TERM MONTH " + S.month + " &middot; WEEK " + S.week + " &middot; WASHINGTON";
   $("ledgerDate").innerHTML = d; $("railDate").innerHTML = d;
 }
@@ -138,12 +142,14 @@ function renderWire(){
 /* ---------- scene ---------- */
 let sceneFlip = false;
 function setScene(name){
+  const stEl = $("stage"); if(stEl) stEl.dataset.scene = name;
   if(!S || S.scene === name) return;
   S.scene = name;
   const showEl = sceneFlip ? $("sceneA") : $("sceneB");
   const hideEl = sceneFlip ? $("sceneB") : $("sceneA");
-  showEl.style.backgroundImage = "url(assets/scene-" + name + ".webp)";
-  $("sceneBg").style.backgroundImage = "url(assets/scene-" + name + ".webp)";
+  const art = wideMode() ? "assets/title-wide.webp" : "assets/scene-" + name + ".webp";
+  showEl.style.backgroundImage = "url(" + art + ")";
+  $("sceneBg").style.backgroundImage = "url(" + art + ")";
   showEl.style.opacity = 1; hideEl.style.opacity = 0;
   sceneFlip = !sceneFlip;
   layoutPrices();
@@ -167,6 +173,9 @@ const SCENE_PRICES = {
   disaster:  {iw:1184, ih:2096, gas:{r:[36,520,196,584], bg:"#E8491D", fg:"#FF3B30"}, eggs:{r:[746,734,812,772], tag:null}},
   war:       {iw:1120, ih:2240, gas:{r:[18,590,215,633], bg:"#EF551E", fg:"#FFE93C"}, eggs:{r:[775,782,921,832], tag:[909,785,981,819]}}
 };
+/* v23 wide desktop: the 4:3 screen uses the wide plate for every state (state tints in CSS) */
+const WIDE_PRICES = {iw:1824, ih:1368, gas:{r:[314,566,410,595], bg:"#F5A623", fg:"#221D10"}, eggs:{r:[524,663,612,682], tag:null}};
+function wideMode(){ return window.matchMedia("(min-width: 1101px)").matches; }
 function priceStr(v){
   if(v >= 100) return String(Math.round(v));
   if(v >= 10) return v.toFixed(1);
@@ -184,16 +193,17 @@ function layoutPrices(){
   if(!S) return;
   const stage = $("stage"); if(!stage) return;
   const dockEl = $("dock");
-  const dockH = (dockEl && !dockEl.classList.contains("hidden")) ? dockEl.offsetHeight + 24 : 0;
+  const dockH = (dockEl && !dockEl.classList.contains("hidden")) ? dockEl.offsetHeight + (wideMode() ? 0 : 24) : 0;
   document.documentElement.style.setProperty("--dockh", dockH + "px");
   const scEl = $("sceneA");
   const W = scEl ? scEl.clientWidth : stage.clientWidth;
   const H = scEl ? scEl.clientHeight : stage.clientHeight - dockH;
   const baseX = scEl ? scEl.offsetLeft : 0;
-  const cfg = SCENE_PRICES[S.scene] || SCENE_PRICES.normal;
-  const coverMode = window.matchMedia("(max-width: 760px)").matches;
+  const wide = wideMode();
+  const cfg = wide ? WIDE_PRICES : (SCENE_PRICES[S.scene] || SCENE_PRICES.normal);
+  const coverMode = wide || window.matchMedia("(max-width: 760px)").matches;
   const scale = coverMode ? Math.max(W / cfg.iw, H / cfg.ih) : Math.min(W / cfg.iw, H / cfg.ih);
-  const offX = baseX + (W - cfg.iw * scale) * 0.5, offY = (H - cfg.ih * scale) * (coverMode ? 0.30 : 0.5);
+  const offX = baseX + (W - cfg.iw * scale) * 0.5, offY = (H - cfg.ih * scale) * (wide ? 0.5 : (coverMode ? 0.30 : 0.5));
   const gasEl = $("sceneGas"), gasTxt = $("sceneGasTxt");
   const gh = placePrice(gasEl, cfg, cfg.gas.r, scale, offX, offY);
   gasEl.style.background = cfg.gas.bg; gasEl.style.color = cfg.gas.fg;
@@ -624,6 +634,7 @@ function sfx(name){
   else if(name === "death") tone(320, 52, 0.75, "sawtooth", 0.13);
   else if(name === "win"){ [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, null, 0.15, "triangle", 0.08, i * 0.1)); }
   else if(name === "danger") tone(96, null, 0.1, "sine", 0.11);
+  else if(name === "dum"){ tone(165, 62, 0.16, "sine", 0.3); tone(131, 50, 0.26, "sine", 0.3, 0.17); }
 }
 
 /* ---------- music: real royalty-free tracks (Kevin MacLeod, CC BY 4.0) ---------- */
@@ -887,6 +898,29 @@ document.addEventListener("DOMContentLoaded", () => {
   $("shareXBtn").onclick = () => window.open("https://twitter.com/intent/tweet?text=" + encodeURIComponent(shareText()), "_blank");
   $("copyBtn").onclick = async () => { try{ await navigator.clipboard.writeText(shareText()); toast("COPIED"); }catch(e){ toast("COPY FAILED"); } };
   window.addEventListener("resize", layoutPrices);
+  /* v23 wide desktop: news tab + rail relocation */
+  const appEl = document.querySelector(".app");
+  $("newsTab").onclick = () => {
+    const open = appEl.classList.toggle("news-open");
+    if(open){ S.unread = 0; renderWire(); }
+    sfx("click");
+  };
+  const wideMQ = window.matchMedia("(min-width: 1101px)");
+  function applyWide(){
+    const wide = wideMQ.matches;
+    const extras = $("settingsExtras"), railRight = $("railRight"), railLeft = $("railLeft"), stageEl = $("stage");
+    if(wide){
+      if(extras && railRight) [...railRight.children].forEach(p => extras.appendChild(p));
+      if(stageEl && railLeft) stageEl.appendChild(railLeft);
+    } else {
+      if(railRight && extras) [...extras.children].forEach(p => railRight.appendChild(p));
+      if(appEl && railLeft) appEl.insertBefore(railLeft, stageEl.parentElement === appEl ? stageEl : appEl.firstChild);
+    }
+    if(S && S.scene){ const cur = S.scene; S.scene = null; setScene(cur); }
+    layoutPrices();
+  }
+  if(wideMQ.addEventListener) wideMQ.addEventListener("change", applyWide); else if(wideMQ.addListener) wideMQ.addListener(applyWide);
+  applyWide();
   renderHall(); render(); renderWire();
   musicStart();
   requestAnimationFrame(loop);
