@@ -393,13 +393,14 @@ function showCard(tag, tagClass, title, body, primary, secondary, hint, onPrimar
   S.paused = true; sfx("card");
   S.cardAction = onPrimary || null; S.cardSecondary = onSecondary || null;
   $("overlayCard").innerHTML =
+    '<div class="letterhead"><div class="seal">$</div><div class="lh-lines"><b>BOARD OF GOVERNORS</b><span>FEDERAL RESERVE SYSTEM &middot; WASHINGTON</span></div></div>' +
     '<span class="tagchip ' + tagClass + '">' + tag + "</span>" +
     "<h2>" + title + "</h2>" +
     '<p class="txt">' + body + "</p>" +
     '<div class="gbar mini-gbar"><div class="gmark" style="left:' + (S.needle*100) + '%"></div></div>' +
     '<div class="glabels"><span style="color:#7FB2FF">RECESSION</span><span style="color:#FF8A75">INFLATION</span></div>' +
-    '<button class="btn-gold" id="cardPrimary">' + primary + "</button>" +
-    (secondary ? '<button class="btn-dim" id="cardSecondary">' + secondary + "</button>" : "") +
+    '<button class="sig-block" id="cardPrimary"><span class="sig-order">By order: ' + primary + '</span><span class="sig-name">Kelvin Whales</span><span class="sig-role">Chairman</span></button>' +
+    (secondary ? '<button class="sig-alt" id="cardSecondary">' + secondary + "</button>" : "") +
     (hint ? '<div class="hintline">' + hint + "</div>" : "");
   $("overlay").classList.remove("hidden");
   $("cardPrimary").onclick = () => { const f = S.cardAction; S.cardAction = null; S.cardSecondary = null; hideCard(); if(f) f(); };

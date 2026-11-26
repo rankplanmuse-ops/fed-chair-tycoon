@@ -573,3 +573,30 @@ html,body{overflow-x:clip}
 .overlay .glabels span:last-child{color:#C2452D !important}
 .overlay .btn-dim{background:transparent;border:1.5px solid #221D10;color:#221D10}
 .overlay .hintline{color:#8A7B52}
+
+/* v29: on the wide screen the stats row rides higher and above the news
+   layer; the NEWS tab drops below the stats so they never overlap. */
+@media (min-width:1101px){
+  .prices{top:52px;z-index:46}
+  .news-tab{top:158px}
+}
+
+/* v29b: the letter is a US government executive letter, not airmail:
+   Board letterhead with seal, serif body, and the decision is a SIGNATURE.
+   The primary action is signed (tap the signature); the secondary is a
+   plain typed line under it. */
+.overlay .card{background:#FDFBF3}
+.overlay .card:before{content:none;display:none}
+.letterhead{display:flex;align-items:center;gap:12px;border-bottom:2px solid #B9973F;padding-bottom:10px;margin-bottom:14px}
+.letterhead .seal{width:44px;height:44px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F3D27A,#B9973F 70%,#8A6D24);border:2px solid #8A6D24;color:#3D2E05;font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:21px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 3px rgba(253,251,243,.55)}
+.lh-lines{display:flex;flex-direction:column;gap:1px}
+.lh-lines b{font-family:Georgia,'Times New Roman',serif;font-size:15.5px;letter-spacing:2.2px;color:#221D10}
+.lh-lines span{font-size:9.5px;font-weight:800;letter-spacing:2.6px;color:#6B5B33}
+.overlay .tagchip{background:none;border:none;padding:0;font-family:CourierPrime,monospace;font-size:11px;color:#6B5B33;letter-spacing:1.6px}
+.overlay h2{font-family:Georgia,'Times New Roman',serif;font-weight:700}
+.overlay .txt{font-family:Georgia,'Times New Roman',serif;font-size:14.5px;line-height:1.5}
+.sig-block{display:block;width:100%;margin-top:18px;background:none;border:none;text-align:left;padding:4px 2px 0;cursor:pointer}
+.sig-order{display:block;font-size:11px;font-weight:900;letter-spacing:2px;color:#8A5A10;text-transform:uppercase;margin-bottom:4px}
+.sig-name{display:block;font-family:'Snell Roundhand','Brush Script MT','Segoe Script',cursive;font-size:36px;line-height:1.1;color:#1D2A4A;border-bottom:1.5px solid #221D10;padding-bottom:3px}
+.sig-role{display:block;font-size:10px;font-weight:800;letter-spacing:2.6px;color:#6B5B33;margin-top:5px;text-transform:uppercase}
+.sig-alt{display:block;margin:13px auto 0;background:none;border:none;font-size:12px;font-weight:800;letter-spacing:1.6px;color:#3A332A;text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-transform:uppercase;font-family:Nunito,sans-serif}
