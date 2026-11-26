@@ -392,15 +392,27 @@ function toast(msg){
 function showCard(tag, tagClass, title, body, primary, secondary, hint, onPrimary, onSecondary){
   S.paused = true; sfx("card");
   S.cardAction = onPrimary || null; S.cardSecondary = onSecondary || null;
+  const today = new Date().toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"});
+  const sealSvg = '<svg class="lseal" viewBox="0 0 80 80" aria-hidden="true"><defs><path id="sealArc" d="M40,40 m-30,0 a30,30 0 1,1 60,0 a30,30 0 1,1 -60,0"/></defs>' +
+    '<circle cx="40" cy="40" r="38" fill="#F4E9C8"/><circle cx="40" cy="40" r="38" fill="none" stroke="#8A6D24" stroke-width="1.6"/><circle cx="40" cy="40" r="23.5" fill="none" stroke="#8A6D24" stroke-width="1.1"/>' +
+    '<text font-size="8" letter-spacing="1.6" fill="#6E5518" font-family="Georgia,serif" font-weight="700"><textPath href="#sealArc">&#9733; BOARD OF GOVERNORS &#9733; FEDERAL RESERVE SYSTEM</textPath></text>' +
+    '<g fill="#6E5518"><path d="M28 34 L40 27 L52 34 Z"/><rect x="29.5" y="36" width="3" height="11"/><rect x="35" y="36" width="3" height="11"/><rect x="40.5" y="36" width="3" height="11"/><rect x="46" y="36" width="3" height="11"/><rect x="27" y="48.5" width="26" height="2.4"/></g></svg>';
+  const sigSvg = '<svg class="lsig-svg" viewBox="0 0 240 64" aria-hidden="true"><path d="M14 44 C26 12, 40 10, 36 28 C33 42, 20 46, 16 38 C30 30, 52 22, 58 30 C63 37, 52 46, 47 40 C58 28, 74 24, 80 31 C85 37, 76 45, 70 41 C84 30, 104 26, 112 33 C118 38, 110 45, 104 42 C120 34, 150 30, 168 36 C150 45, 96 53, 38 52 C70 56, 170 55, 226 38" fill="none" stroke="#20304F" stroke-width="2.4" stroke-linecap="round" opacity="0.92"/></svg>';
   $("overlayCard").innerHTML =
-    '<div class="letterhead"><div class="seal">$</div><div class="lh-lines"><b>BOARD OF GOVERNORS</b><span>FEDERAL RESERVE SYSTEM &middot; WASHINGTON</span></div></div>' +
-    '<span class="tagchip ' + tagClass + '">' + tag + "</span>" +
-    "<h2>" + title + "</h2>" +
-    '<p class="txt">' + body + "</p>" +
+    '<div class="lhead">' + sealSvg + '<div class="lhead-t"><b>BOARD OF GOVERNORS</b><span>OF THE FEDERAL RESERVE SYSTEM</span><span class="lh-city">WASHINGTON, D.C.</span></div></div>' +
+    '<div class="lrule"></div>' +
+    '<span class="lstamp ' + tagClass + '">' + tag + "</span>" +
+    '<div class="lmemo">' +
+      '<div><span class="lm-k">MEMORANDUM FOR:</span> The Chairman</div>' +
+      '<div><span class="lm-k">FROM:</span> Office of the Secretary</div>' +
+      '<div><span class="lm-k">DATE:</span> ' + today + '</div>' +
+      '<div><span class="lm-k">SUBJECT:</span> <b>' + title + '</b></div>' +
+    '</div>' +
+    '<p class="lbody">' + body + "</p>" +
     '<div class="gbar mini-gbar"><div class="gmark" style="left:' + (S.needle*100) + '%"></div></div>' +
     '<div class="glabels"><span style="color:#7FB2FF">RECESSION</span><span style="color:#FF8A75">INFLATION</span></div>' +
-    '<button class="sig-block" id="cardPrimary"><span class="sig-order">By order: ' + primary + '</span><span class="sig-name">Kelvin Whales</span><span class="sig-role">Chairman</span></button>' +
-    (secondary ? '<button class="sig-alt" id="cardSecondary">' + secondary + "</button>" : "") +
+    '<button class="lsig" id="cardPrimary"><span class="lsig-flag">SIGN: ' + primary + '</span>' + sigSvg + '<span class="lsig-line"></span><span class="lsig-name">Kelvin Whales, Chairman</span></button>' +
+    (secondary ? '<button class="lps" id="cardSecondary">P.S. &mdash; ' + secondary + "</button>" : "") +
     (hint ? '<div class="hintline">' + hint + "</div>" : "");
   $("overlay").classList.remove("hidden");
   $("cardPrimary").onclick = () => { const f = S.cardAction; S.cardAction = null; S.cardSecondary = null; hideCard(); if(f) f(); };
