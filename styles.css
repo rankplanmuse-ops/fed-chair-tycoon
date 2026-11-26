@@ -557,3 +557,19 @@ html,body{overflow-x:clip}
 .stage.wideplate[data-scene="recession"] .scene{filter:saturate(.5) brightness(.93)}
 .stage.wideplate[data-scene="war"] .scene{filter:saturate(.75) sepia(.4) brightness(.95)}
 .stage.wideplate[data-scene="disaster"] .scene{filter:saturate(.4) brightness(.8)}
+
+/* v28: every official interruption arrives as a LETTER, like the Term
+   Report: cream paper, ink text, airmail stripe, capped width, centred.
+   The dark full-width card is gone at every size. */
+.overlay{justify-content:center;padding:7vh 14px 14px}
+.overlay .card{width:min(520px,100%);background:linear-gradient(180deg,#FBF7EA,var(--cream));border:1px solid #D8CBA6;border-radius:6px;box-shadow:0 22px 48px rgba(20,12,0,.45);backdrop-filter:none;color:#221D10;position:relative;overflow:hidden}
+.overlay .card:before{content:"";position:absolute;top:0;left:0;right:0;height:6px;background:repeating-linear-gradient(45deg,#C73E46 0 14px,#FBF7EA 14px 28px,#2F5D8A 28px 42px,#FBF7EA 42px 56px)}
+.overlay h2{color:#221D10}
+.overlay .txt{color:#4A4232}
+.overlay .tag-warn{background:#F7E7C3;color:#8A5A10;border:1px solid #C9A227}
+.overlay .tag-event{background:#DCE9F7;color:#1D4E79;border:1px solid #7FA8C9}
+.overlay .tag-story{background:#E7DEF7;color:#4B3480;border:1px solid #A68FD0}
+.overlay .glabels span:first-child{color:#2F6BB3 !important}
+.overlay .glabels span:last-child{color:#C2452D !important}
+.overlay .btn-dim{background:transparent;border:1.5px solid #221D10;color:#221D10}
+.overlay .hintline{color:#8A7B52}
