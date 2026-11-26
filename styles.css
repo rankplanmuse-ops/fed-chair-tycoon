@@ -639,3 +639,30 @@ html,body{overflow-x:clip}
   .lsig-svg{margin-left:96px;width:200px}
   .lsig-flag{max-width:52%}
 }
+
+/* v31: hierarchy and a clear CTA. Memo fields shrink to a quiet header,
+   SUBJECT becomes the headline, the stamp moves off the letterhead into the
+   memo block's empty right side, and signing becomes an obvious tap target:
+   a dashed signing field with the SIGN flag on its border and TAP TO SIGN
+   inside. The P.S. becomes a bordered action slip. */
+.lmemo{font-size:11.5px;line-height:1.7}
+.lm-k{min-width:118px}
+.lstamp{top:158px;right:34px}
+.lsubj{margin-top:15px}
+.lsubj span{display:block;font-family:CourierPrime,monospace;font-size:10.5px;font-weight:700;letter-spacing:2.2px;color:#6B5B33}
+.lsubj b{display:block;font-family:Georgia,'Times New Roman',serif;font-size:20.5px;line-height:1.25;color:#221D10;margin-top:3px}
+.lbody{font-size:15.5px;line-height:1.6;margin-top:10px}
+.lcap{font-family:CourierPrime,monospace;font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5B33;margin-top:17px}
+.overlay .gbar{margin-top:6px}
+.lsig{border:1.6px dashed #9A8B62;border-radius:8px;padding:28px 16px 13px;margin-top:24px;background:rgba(60,45,10,.03)}
+.lsig:hover{border-color:#6B5B33;background:rgba(60,45,10,.07)}
+.lsig-flag{left:12px;top:-11px;transform:rotate(-2deg);font-size:11.5px;padding:5px 10px;max-width:82%}
+.lsig-svg{margin-left:26px}
+.lsig-tap{position:absolute;right:12px;bottom:11px;font-family:CourierPrime,monospace;font-size:9.5px;font-weight:700;letter-spacing:1.6px;color:#8A7B52}
+.lps{border:1.5px solid #2A2416;border-radius:6px;padding:9px 14px;text-decoration:none;display:inline-block;background:rgba(255,255,255,.35)}
+.lps:hover{background:#2A2416;color:#FAF6EC}
+@media (max-width:760px){
+  .lstamp{top:146px;right:14px}
+  .lsubj b{font-size:18.5px}
+  .lsig-svg{margin-left:14px}
+}

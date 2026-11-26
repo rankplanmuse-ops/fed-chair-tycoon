@@ -406,12 +406,13 @@ function showCard(tag, tagClass, title, body, primary, secondary, hint, onPrimar
       '<div><span class="lm-k">MEMORANDUM FOR:</span> The Chairman</div>' +
       '<div><span class="lm-k">FROM:</span> Office of the Secretary</div>' +
       '<div><span class="lm-k">DATE:</span> ' + today + '</div>' +
-      '<div><span class="lm-k">SUBJECT:</span> <b>' + title + '</b></div>' +
     '</div>' +
+    '<div class="lsubj"><span>SUBJECT</span><b>' + title + '</b></div>' +
     '<p class="lbody">' + body + "</p>" +
+    '<div class="lcap">THE NEEDLE NOW</div>' +
     '<div class="gbar mini-gbar"><div class="gmark" style="left:' + (S.needle*100) + '%"></div></div>' +
     '<div class="glabels"><span style="color:#7FB2FF">RECESSION</span><span style="color:#FF8A75">INFLATION</span></div>' +
-    '<button class="lsig" id="cardPrimary"><span class="lsig-flag">SIGN: ' + primary + '</span>' + sigSvg + '<span class="lsig-line"></span><span class="lsig-name">Kelvin Whales, Chairman</span></button>' +
+    '<button class="lsig" id="cardPrimary"><span class="lsig-flag">SIGN: ' + primary + '</span>' + sigSvg + '<span class="lsig-line"></span><span class="lsig-name">Kelvin Whales, Chairman</span><span class="lsig-tap">TAP TO SIGN</span></button>' +
     (secondary ? '<button class="lps" id="cardSecondary">P.S. &mdash; ' + secondary + "</button>" : "") +
     (hint ? '<div class="hintline">' + hint + "</div>" : "");
   $("overlay").classList.remove("hidden");
