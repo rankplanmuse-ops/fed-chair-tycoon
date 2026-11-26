@@ -27,7 +27,7 @@ add("Loading screen","TAP TO SKIP","Loading screen, bottom","Hint that the loadi
 # ---------- Briefing ----------
 add("Briefing","THE BRIEFING","Briefing card, ribbon over the street artwork","Card header","Gold ribbon banner")
 add("Briefing","The job is yours","Briefing card, headline","Card title","Large Baloo 2, white")
-add("Briefing","In 1910, seven men met in secret on Jekyll Island and designed a central bank. You are what they built. Keep inflation near 2%, keep the street calm, and survive 48 months.","Briefing card, body paragraph","Story intro and the win condition","Body text; dates and key phrases in bold")
+add("Briefing","In November 1910, seven men meet in secret on Jekyll Island. They design a central bank and call it the Federal Reserve. You're now in charge. Keep the printer going brrr, target inflation near 2%, calm the street, and survive your term.","Briefing card, body paragraph","Story intro and the win condition","Body text; dates and key phrases in bold")
 add("Briefing","The needle. Green is calm. Blue is recession, red is inflation. Peg either end and your term ends.","Briefing card, rule row 1","Explains the gauge","Rule row with a green dot icon")
 add("Briefing","The lever. One interest rate, moved in 0.25 steps. It works slowly, like everything in this building.","Briefing card, rule row 2","Explains the one control","Rule row with up/down triangle icon")
 add("Briefing","Items. Washington speak, single use: speeches, blame, emergency buttons. They reset the street, briefly.","Briefing card, rule row 3","Explains crisis items","Rule row with a lightning icon")
